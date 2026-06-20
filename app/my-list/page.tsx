@@ -52,7 +52,7 @@ export default function MyListPage() {
 
   return (
     <AppShell>
-      <div className="p-6 max-w-screen-xl mx-auto">
+      <div className="p-4 sm:p-6 max-w-screen-xl mx-auto">
         <h1 className="text-lg font-bold mb-5">My List</h1>
 
         {/* Tabs with counts */}

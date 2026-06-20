@@ -106,7 +106,7 @@ export default function FilmDrawer({ tmdbId, onClose }: Props) {
         </button>
 
         {!detail ? (
-          <div className="p-6 animate-pulse">
+          <div className="p-4 sm:p-6 animate-pulse">
             <div className="flex gap-5 mb-6">
               <div className="w-28 flex-shrink-0 aspect-[2/3] rounded-lg bg-bg-elevated" />
               <div className="flex-1 pt-1 space-y-3">
@@ -129,7 +129,7 @@ export default function FilmDrawer({ tmdbId, onClose }: Props) {
             <div className="h-10 bg-bg-elevated rounded-xl" />
           </div>
         ) : (
-          <div className="p-6">
+          <div className="p-4 sm:p-6">
             {/* Header */}
             <div className="flex gap-5 mb-6">
               {detail.poster_url && (

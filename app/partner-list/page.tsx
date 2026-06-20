@@ -29,11 +29,11 @@ export default function PartnerListPage() {
       .then(({ data }) => setAllItems((data ?? []) as ListItem[]))
   }, [partnerId, supabase])
 
-  if (loading) return <AppShell><div className="p-6 text-text-muted text-sm">Loading…</div></AppShell>
+  if (loading) return <AppShell><div className="p-4 sm:p-6 text-text-muted text-sm">Loading…</div></AppShell>
 
   if (!partnerId) return (
     <AppShell>
-      <div className="p-6">
+      <div className="p-4 sm:p-6">
         <h1 className="text-lg font-bold mb-3">Partner's List</h1>
         <p className="text-text-muted text-sm">Not linked to a partner yet.</p>
         <Link href="/profile" className="text-xs text-cinema-red hover:underline mt-2 inline-block">
@@ -55,7 +55,7 @@ export default function PartnerListPage() {
 
   return (
     <AppShell>
-      <div className="p-6 max-w-screen-xl mx-auto">
+      <div className="p-4 sm:p-6 max-w-screen-xl mx-auto">
         <h1 className="text-lg font-bold mb-5">Partner's List</h1>
 
         {/* Tabs with counts */}

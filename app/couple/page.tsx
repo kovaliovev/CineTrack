@@ -12,10 +12,10 @@ export default function CouplePage() {
   const [tab, setTab] = useState<Tab>('match')
   const { partnerId, loading } = useCouple()
 
-  if (loading) return <AppShell><div className="p-6 text-text-muted text-sm">Loading…</div></AppShell>
+  if (loading) return <AppShell><div className="p-4 sm:p-6 text-text-muted text-sm">Loading…</div></AppShell>
   if (!partnerId) return (
     <AppShell>
-      <div className="p-6">
+      <div className="p-4 sm:p-6">
         <h1 className="text-lg font-bold mb-3">Couple</h1>
         <p className="text-text-muted text-sm">Not linked to a partner yet. Share your invite code from Profile.</p>
       </div>
@@ -24,7 +24,7 @@ export default function CouplePage() {
 
   return (
     <AppShell>
-      <div className="p-6 max-w-screen-xl mx-auto">
+      <div className="p-4 sm:p-6 max-w-screen-xl mx-auto">
         <h1 className="text-lg font-bold mb-5">Couple</h1>
 
         <div className="flex gap-1 bg-bg-elevated rounded-lg p-1 w-fit mb-6">

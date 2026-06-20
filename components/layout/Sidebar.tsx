@@ -53,7 +53,7 @@ export default function Sidebar() {
   const pathname = usePathname()
 
   return (
-    <aside className="w-14 flex-shrink-0 bg-bg-sidebar border-r border-bg-border flex flex-col items-center py-4 gap-1">
+    <aside className="hidden md:flex w-14 flex-shrink-0 bg-bg-sidebar border-r border-bg-border flex-col items-center py-4 gap-1">
       {/* Logo */}
       <Link href="/discover" className="mb-3" title="ReelTwo">
         <Logo size="sm" />

@@ -28,7 +28,7 @@ export default function RatingPicker({ value, onChange, onCancel }: Props) {
         <span className="text-xs text-text-muted">/ 10</span>
       </div>
 
-      <div className="flex gap-1">
+      <div className="grid grid-cols-5 gap-2 sm:flex sm:gap-1">
         {SCORES.map(s => {
           const active = value === s
           const isHovered = hovered === s

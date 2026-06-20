@@ -111,43 +111,47 @@ export default function DiscoverPage() {
 
   return (
     <AppShell>
-      <div className="p-6 max-w-screen-2xl mx-auto">
+      <div className="p-4 sm:p-6 max-w-screen-2xl mx-auto">
 
         {/* Search bar → redirects to Explore */}
-        <form onSubmit={handleSearchSubmit} className="flex gap-2 mb-8">
-          <div className="flex-1 relative max-w-sm">
-            <svg className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted pointer-events-none" width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
-              <circle cx="6" cy="6" r="4.5" stroke="currentColor" strokeWidth="1.5"/>
-              <path d="M9.5 9.5L13 13" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
-            </svg>
-            <input
-              value={search}
-              onChange={e => setSearch(e.target.value)}
-              placeholder="Search films…"
-              className="w-full bg-bg-elevated border border-bg-border rounded-lg pl-9 pr-4 py-2.5 text-sm outline-none focus:border-cinema-red transition-colors"
-            />
+        <div className="flex flex-col sm:flex-row gap-2 mb-8">
+          <form onSubmit={handleSearchSubmit} className="flex gap-2 flex-1 sm:max-w-sm">
+            <div className="flex-1 relative">
+              <svg className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted pointer-events-none" width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+                <circle cx="6" cy="6" r="4.5" stroke="currentColor" strokeWidth="1.5"/>
+                <path d="M9.5 9.5L13 13" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+              </svg>
+              <input
+                value={search}
+                onChange={e => setSearch(e.target.value)}
+                placeholder="Search films…"
+                className="w-full bg-bg-elevated border border-bg-border rounded-lg pl-9 pr-4 py-2.5 text-sm outline-none focus:border-cinema-red transition-colors"
+              />
+            </div>
+            <button
+              type="submit"
+              className="px-4 py-2.5 bg-bg-elevated border border-bg-border rounded-lg text-sm text-text-secondary hover:text-white hover:border-cinema-red transition-colors"
+            >
+              Search
+            </button>
+          </form>
+          <div className="flex gap-2">
+            <button
+              type="button"
+              onClick={() => router.push('/explore')}
+              className="flex-1 sm:flex-none px-4 py-2.5 bg-bg-elevated border border-bg-border rounded-lg text-sm text-text-secondary hover:text-white hover:border-cinema-red transition-colors"
+            >
+              Browse all →
+            </button>
+            <button
+              type="button"
+              onClick={surpriseMe}
+              className="flex-1 sm:flex-none px-4 py-2.5 bg-bg-elevated border border-bg-border rounded-lg text-sm text-text-secondary hover:text-white hover:border-cinema-red transition-colors"
+            >
+              Surprise me
+            </button>
           </div>
-          <button
-            type="submit"
-            className="px-4 py-2.5 bg-bg-elevated border border-bg-border rounded-lg text-sm text-text-secondary hover:text-white hover:border-cinema-red transition-colors"
-          >
-            Search
-          </button>
-          <button
-            type="button"
-            onClick={() => router.push('/explore')}
-            className="px-4 py-2.5 bg-bg-elevated border border-bg-border rounded-lg text-sm text-text-secondary hover:text-white hover:border-cinema-red transition-colors"
-          >
-            Browse all →
-          </button>
-          <button
-            type="button"
-            onClick={surpriseMe}
-            className="px-4 py-2.5 bg-bg-elevated border border-bg-border rounded-lg text-sm text-text-secondary hover:text-white hover:border-cinema-red transition-colors"
-          >
-            Surprise me
-          </button>
-        </form>
+        </div>
 
         {/* Rows */}
         {!loaded
