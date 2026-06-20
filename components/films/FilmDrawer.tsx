@@ -7,7 +7,8 @@ import { useFilmStatus } from '@/hooks/useFilmStatus'
 import RatingPicker from './RatingPicker'
 import TrailerButton from './TrailerButton'
 import CommentsSection from '@/components/comments/CommentsSection'
-import type { FilmCardStatus } from '@/lib/types'
+import { posterUrl } from '@/lib/tmdb'
+import type { FilmCardStatus, TMDBMovie } from '@/lib/types'
 
 interface FilmDetail {
   id: number
@@ -24,15 +25,18 @@ interface FilmDetail {
 interface Props {
   tmdbId: number
   onClose: () => void
+  onOpenFilm?: (tmdbId: number) => void
 }
 
-export default function FilmDrawer({ tmdbId, onClose }: Props) {
+export default function FilmDrawer({ tmdbId, onClose, onOpenFilm }: Props) {
   const [detail, setDetail] = useState<FilmDetail | null>(null)
   const [myInitial, setMyInitial] = useState<FilmCardStatus>({ status: null, score: null })
   const [partnerStatus, setPartnerStatus] = useState<FilmCardStatus>({ status: null, score: null })
   const [userId, setUserId] = useState<string>('')
   const [showPicker, setShowPicker] = useState(false)
   const [visible, setVisible] = useState(false)
+  const [similarFilms, setSimilarFilms] = useState<TMDBMovie[]>([])
+  const [similarLoading, setSimilarLoading] = useState(false)
   const supabase = createClient()
 
   useEffect(() => {
@@ -41,10 +45,25 @@ export default function FilmDrawer({ tmdbId, onClose }: Props) {
   }, [])
 
   useEffect(() => {
+    // Reset state immediately so skeleton shows while new film loads
+    setDetail(null)
+    setMyInitial({ status: null, score: null })
+    setPartnerStatus({ status: null, score: null })
+    setShowPicker(false)
+    setSimilarFilms([])
+    setSimilarLoading(true)
+
     // Load film detail from TMDB proxy
     fetch(`/api/tmdb/film/${tmdbId}`)
       .then(r => r.json())
       .then(d => { if (!d.error) setDetail(d) })
+
+    // Load recommendations
+    fetch(`/api/tmdb/film/${tmdbId}/similar`)
+      .then(r => r.json())
+      .then(data => { if (Array.isArray(data)) setSimilarFilms(data) })
+      .catch(() => {})
+      .finally(() => setSimilarLoading(false))
 
     // Load current user
     supabase.auth.getUser().then(({ data }) => {
@@ -254,6 +273,50 @@ export default function FilmDrawer({ tmdbId, onClose }: Props) {
 
             {/* Comments */}
             {userId && <CommentsSection tmdbId={tmdbId} currentUserId={userId} />}
+
+            {/* More Like This */}
+            {(similarLoading || similarFilms.length > 0) && (
+              <div className="mt-6 pt-5 border-t border-bg-border">
+                <p className="text-xs font-semibold text-text-muted uppercase tracking-wider mb-3">More Like This</p>
+                <div className="relative">
+                  {/* Right fade to hint at more content */}
+                  <div className="absolute right-0 top-0 bottom-2 w-10 bg-gradient-to-l from-bg-card to-transparent z-10 pointer-events-none" />
+                  <div
+                    className="flex gap-2.5 overflow-x-auto pb-2 [&::-webkit-scrollbar]:hidden"
+                    style={{ scrollbarWidth: 'none' }}
+                  >
+                    {similarLoading
+                      ? Array.from({ length: 5 }).map((_, i) => (
+                          <div key={i} className="flex-none w-20 sm:w-[88px]">
+                            <div className="aspect-[2/3] rounded-lg bg-bg-elevated animate-pulse" />
+                            <div className="h-2 bg-bg-elevated rounded mt-2 animate-pulse w-3/4" />
+                            <div className="h-2 bg-bg-elevated rounded mt-1.5 animate-pulse w-1/2" />
+                          </div>
+                        ))
+                      : similarFilms.map(film => {
+                          const poster = posterUrl(film.poster_path)
+                          return (
+                            <button
+                              key={film.id}
+                              onClick={() => onOpenFilm?.(film.id)}
+                              className="flex-none w-20 sm:w-[88px] group text-left"
+                              title={film.title}
+                            >
+                              <div className="relative aspect-[2/3] rounded-lg overflow-hidden bg-bg-elevated border border-transparent group-hover:border-cinema-red/40 transition-colors duration-200">
+                                {poster
+                                  ? <Image src={poster} alt={film.title} fill className="object-cover group-hover:scale-105 transition-transform duration-300" sizes="88px" />
+                                  : <div className="w-full h-full flex items-center justify-center text-text-muted text-[10px]">No image</div>
+                                }
+                              </div>
+                              <p className="text-[11px] leading-tight text-text-muted group-hover:text-text-secondary transition-colors mt-1.5 line-clamp-2">{film.title}</p>
+                            </button>
+                          )
+                        })
+                    }
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         )}
       </div>

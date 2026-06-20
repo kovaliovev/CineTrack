@@ -170,7 +170,7 @@ export default function MyListPage() {
       {openFilmId && <FilmDrawer tmdbId={openFilmId} onClose={() => {
         setOpenFilmId(null)
         if (userId) loadItems(userId)
-      }} />}
+      }} onOpenFilm={setOpenFilmId} />}
     </AppShell>
   )
 }

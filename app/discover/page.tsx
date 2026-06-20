@@ -179,7 +179,7 @@ export default function DiscoverPage() {
         }
 
         {openFilmId && (
-          <FilmDrawer tmdbId={openFilmId} onClose={() => { setOpenFilmId(null); refreshStatuses() }} />
+          <FilmDrawer tmdbId={openFilmId} onClose={() => { setOpenFilmId(null); refreshStatuses() }} onOpenFilm={setOpenFilmId} />
         )}
       </div>
     </AppShell>

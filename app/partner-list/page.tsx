@@ -148,7 +148,7 @@ export default function PartnerListPage() {
         )}
       </div>
 
-      {openFilmId && <FilmDrawer tmdbId={openFilmId} onClose={() => setOpenFilmId(null)} />}
+      {openFilmId && <FilmDrawer tmdbId={openFilmId} onClose={() => setOpenFilmId(null)} onOpenFilm={setOpenFilmId} />}
     </AppShell>
   )
 }

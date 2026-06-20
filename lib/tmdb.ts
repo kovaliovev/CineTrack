@@ -130,6 +130,11 @@ export async function fetchSurprise(): Promise<TMDBMovie> {
   return results[Math.floor(Math.random() * results.length)]
 }
 
+export async function fetchRecommendations(id: number): Promise<TMDBMovie[]> {
+  const data = await get<{ results: TMDBMovie[] }>(`/movie/${id}/recommendations`)
+  return data.results.slice(0, 12)
+}
+
 export async function fetchByDecade(decade: number): Promise<TMDBMovie[]> {
   const data = await get<{ results: TMDBMovie[] }>('/discover/movie', {
     'primary_release_date.gte': `${decade}-01-01`,
