@@ -38,7 +38,7 @@ export default function FilmDrawer({ tmdbId, onClose }: Props) {
     // Load film detail from TMDB proxy
     fetch(`/api/tmdb/film/${tmdbId}`)
       .then(r => r.json())
-      .then(setDetail)
+      .then(d => { if (!d.error) setDetail(d) })
 
     // Load current user
     supabase.auth.getUser().then(({ data }) => {
@@ -49,7 +49,7 @@ export default function FilmDrawer({ tmdbId, onClose }: Props) {
       supabase.from('user_films').select('status, score')
         .eq('tmdb_id', tmdbId)
         .eq('user_id', data.user.id)
-        .single()
+        .maybeSingle()
         .then(({ data: uf }) => {
           if (uf) setMyInitial({ status: uf.status, score: uf.score })
         })
@@ -58,7 +58,7 @@ export default function FilmDrawer({ tmdbId, onClose }: Props) {
       supabase.from('user_films').select('status, score, user_id')
         .eq('tmdb_id', tmdbId)
         .neq('user_id', data.user.id)
-        .single()
+        .maybeSingle()
         .then(({ data: uf }) => {
           if (uf) setHerStatus({ status: uf.status, score: uf.score })
         })
