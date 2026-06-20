@@ -1,5 +1,5 @@
 'use client'
-import { useState, useEffect, useCallback, Suspense } from 'react'
+import { useState, useEffect, useCallback, useRef, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import AppShell from '@/components/layout/AppShell'
 import FilmGrid from '@/components/films/FilmGrid'
@@ -40,6 +40,8 @@ function ExplorePageInner() {
   const [sort, setSort] = useState('popularity.desc')
   const [statuses, setStatuses] = useState<Record<number, FilmCardStatus>>({})
   const [openFilmId, setOpenFilmId] = useState<number | null>(null)
+  const sentinelRef = useRef<HTMLDivElement>(null)
+  const fetchingRef = useRef(false)
 
   // Fetch genres on mount
   useEffect(() => {
@@ -80,12 +82,32 @@ function ExplorePageInner() {
     setPage(p)
     setLoading(false)
     setLoadingMore(false)
+    fetchingRef.current = false
   }, [isCurated, initialType, selectedGenre, selectedDecade, sort])
 
   // Reload when filters change
   useEffect(() => {
+    fetchingRef.current = false
     fetchPage(1, true)
   }, [selectedGenre, selectedDecade, sort, fetchPage])
+
+  // Infinite scroll — observe sentinel div at bottom
+  useEffect(() => {
+    const sentinel = sentinelRef.current
+    if (!sentinel) return
+    const observer = new IntersectionObserver(entries => {
+      if (entries[0].isIntersecting && !fetchingRef.current) {
+        setPage(prev => {
+          if (prev >= totalPages) return prev
+          fetchingRef.current = true
+          fetchPage(prev + 1)
+          return prev
+        })
+      }
+    }, { rootMargin: '200px' })
+    observer.observe(sentinel)
+    return () => observer.disconnect()
+  }, [totalPages, fetchPage])
 
   // Update statuses
   useEffect(() => {
@@ -140,17 +162,12 @@ function ExplorePageInner() {
         ) : (
           <>
             <FilmGrid movies={films} statuses={statuses} onOpenDetail={setOpenFilmId} />
-            {page < totalPages && (
-              <div className="flex justify-center mt-8">
-                <button
-                  onClick={() => fetchPage(page + 1)}
-                  disabled={loadingMore}
-                  className="px-6 py-2.5 bg-bg-elevated border border-bg-border rounded-lg text-sm text-text-secondary hover:text-white hover:border-cinema-red transition-colors disabled:opacity-50"
-                >
-                  {loadingMore ? 'Loading…' : 'Load more'}
-                </button>
-              </div>
-            )}
+            <div ref={sentinelRef} className="h-16 flex items-center justify-center">
+              {loadingMore && <p className="text-text-muted text-sm">Loading…</p>}
+              {!loadingMore && page >= totalPages && films.length > 0 && (
+                <p className="text-text-muted text-xs">All films loaded</p>
+              )}
+            </div>
           </>
         )}
 
