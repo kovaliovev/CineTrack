@@ -71,7 +71,7 @@ export default function FilmDrawer({ tmdbId, onClose }: Props) {
     })
   }, [tmdbId])
 
-  const { status: myStatus, addToWishlist, markWatched } = useFilmStatus(
+  const { status: myStatus, addToWishlist, markWatched, removeFromList } = useFilmStatus(
     tmdbId,
     myInitial,
     detail
@@ -170,33 +170,71 @@ export default function FilmDrawer({ tmdbId, onClose }: Props) {
 
             {/* My status */}
             <div className="bg-bg-elevated rounded-xl p-4 mb-3">
-              <p className="text-xs text-text-muted mb-2">Your status</p>
+              <p className="text-xs text-text-muted mb-3">Your status</p>
               {showPicker ? (
                 <RatingPicker
                   value={myStatus.score}
                   onChange={handleWatched}
                   onCancel={() => setShowPicker(false)}
                 />
+              ) : myStatus.status === 'watched' ? (
+                <div>
+                  <div className="flex items-center gap-2 mb-3">
+                    <span className="text-sm font-medium text-emerald-400">✓ Watched</span>
+                    {myStatus.score !== null && (
+                      <span className="text-sm font-bold text-cinema-red">
+                        {myStatus.score}<span className="text-text-muted font-normal text-xs">/10</span>
+                      </span>
+                    )}
+                  </div>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => setShowPicker(true)}
+                      className="text-xs px-3 py-1.5 bg-bg-base rounded-lg text-text-secondary hover:text-white transition-colors"
+                    >
+                      Change rating
+                    </button>
+                    <button
+                      onClick={removeFromList}
+                      className="text-xs px-3 py-1.5 bg-bg-base rounded-lg text-text-muted hover:text-red-400 transition-colors"
+                    >
+                      Remove
+                    </button>
+                  </div>
+                </div>
+              ) : myStatus.status === 'wishlist' ? (
+                <div>
+                  <div className="flex items-center gap-1.5 mb-3">
+                    <span className="text-sm font-medium text-cinema-red">♥ In Wishlist</span>
+                  </div>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => setShowPicker(true)}
+                      className="text-xs px-3 py-1.5 bg-cinema-red text-white rounded-lg hover:opacity-90 transition-opacity"
+                    >
+                      ✓ Mark Watched
+                    </button>
+                    <button
+                      onClick={removeFromList}
+                      className="text-xs px-3 py-1.5 bg-bg-base rounded-lg text-text-muted hover:text-red-400 transition-colors"
+                    >
+                      Remove
+                    </button>
+                  </div>
+                </div>
               ) : (
-                <div className="flex items-center gap-2 flex-wrap">
-                  <span className="text-sm text-text-secondary">
-                    {myStatus.status === 'watched'
-                      ? `Watched · ${myStatus.score}`
-                      : myStatus.status === 'wishlist'
-                      ? 'In wishlist'
-                      : 'Not seen'}
-                  </span>
+                <div className="flex gap-2">
                   <button
                     onClick={addToWishlist}
-                    className="text-xs px-2 py-1 bg-bg-base rounded text-text-muted hover:text-white transition-colors"
+                    className="text-xs px-3 py-1.5 bg-bg-base rounded-lg text-text-secondary hover:text-white border border-bg-border hover:border-cinema-red transition-colors"
                   >
-                    {myStatus.status === 'wishlist' ? '♥ Wishlisted' : '+ Wishlist'}
+                    + Wishlist
                   </button>
                   <button
                     onClick={() => setShowPicker(true)}
-                    className="text-xs px-2 py-1 bg-bg-base rounded text-text-muted hover:text-white transition-colors"
+                    className="text-xs px-3 py-1.5 bg-cinema-red text-white rounded-lg hover:opacity-90 transition-opacity"
                   >
-                    {myStatus.status === 'watched' ? `✓ ${myStatus.score}` : '✓ Mark Watched'}
+                    ✓ Mark Watched
                   </button>
                 </div>
               )}
