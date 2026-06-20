@@ -20,9 +20,12 @@ export default function ProfilePage() {
 
   async function createCouple() {
     setCreating(true)
-    await fetch('/api/couple', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'create' }) })
-    router.refresh()
-    window.location.reload()
+    const res = await fetch('/api/couple', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'create' }) })
+    if (res.ok) {
+      window.location.reload()
+    } else {
+      setCreating(false)
+    }
   }
 
   async function joinCouple(e: React.FormEvent) {
@@ -34,8 +37,12 @@ export default function ProfilePage() {
       body: JSON.stringify({ action: 'join', invite_code: code.trim() }),
     })
     if (!res.ok) {
-      const d = await res.json()
-      setJoinError(d.error ?? 'Failed to join')
+      try {
+        const d = await res.json()
+        setJoinError(d?.error ?? 'Failed to join')
+      } catch {
+        setJoinError('Failed to join')
+      }
     } else {
       window.location.reload()
     }
