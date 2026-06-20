@@ -21,8 +21,7 @@ export async function POST(req: NextRequest) {
 
     const { error: profileError } = await admin
       .from('profiles')
-      .update({ couple_id: data.id })
-      .eq('id', user.id)
+      .upsert({ id: user.id, couple_id: data.id })
     if (profileError) return NextResponse.json({ error: profileError.message }, { status: 500 })
 
     return NextResponse.json({ invite_code: data.invite_code })
@@ -49,8 +48,7 @@ export async function POST(req: NextRequest) {
 
     const { error: profileUpdateError } = await admin
       .from('profiles')
-      .update({ couple_id: couple.id })
-      .eq('id', user.id)
+      .upsert({ id: user.id, couple_id: couple.id })
     if (profileUpdateError) return NextResponse.json({ error: profileUpdateError.message }, { status: 500 })
 
     return NextResponse.json({ ok: true })
