@@ -13,8 +13,7 @@ function scoreColor(s: number) {
   return 'text-red-400'
 }
 
-const INTEGERS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
-const HALVES   = [0.5, 1.5, 2.5, 3.5, 4.5, 5.5, 6.5, 7.5, 8.5, 9.5]
+const SCORES = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
 
 export default function RatingPicker({ value, onChange, onCancel }: Props) {
   const [hovered, setHovered] = useState<number | null>(null)
@@ -22,40 +21,15 @@ export default function RatingPicker({ value, onChange, onCancel }: Props) {
 
   return (
     <div className="select-none">
-      {/* Score display */}
       <div className="flex items-baseline gap-2 mb-4">
         <span className={`text-3xl font-bold tabular-nums transition-all duration-100 ${display !== null ? scoreColor(display) : 'text-text-muted'}`}>
-          {display !== null ? display.toFixed(1) : '—'}
+          {display ?? '—'}
         </span>
         <span className="text-xs text-text-muted">/ 10</span>
       </div>
 
-      {/* Half-step row */}
-      <div className="flex gap-1 mb-1">
-        {HALVES.map(s => {
-          const active = value === s
-          const isHovered = hovered === s
-          return (
-            <button
-              key={s}
-              onClick={() => onChange(s)}
-              onMouseEnter={() => setHovered(s)}
-              onMouseLeave={() => setHovered(null)}
-              className={`flex-1 h-5 rounded text-[9px] font-medium transition-all duration-100 active:scale-95 ${
-                active || isHovered
-                  ? 'bg-cinema-red text-white'
-                  : 'bg-bg-base text-text-muted hover:bg-bg-elevated'
-              }`}
-            >
-              .5
-            </button>
-          )
-        })}
-      </div>
-
-      {/* Integer row */}
       <div className="flex gap-1">
-        {INTEGERS.map(s => {
+        {SCORES.map(s => {
           const active = value === s
           const isHovered = hovered === s
           return (
@@ -64,7 +38,7 @@ export default function RatingPicker({ value, onChange, onCancel }: Props) {
               onClick={() => onChange(s)}
               onMouseEnter={() => setHovered(s)}
               onMouseLeave={() => setHovered(null)}
-              className={`flex-1 h-9 rounded text-sm font-semibold transition-all duration-100 active:scale-95 ${
+              className={`flex-1 h-10 rounded text-sm font-semibold transition-all duration-100 active:scale-95 ${
                 active || isHovered
                   ? 'bg-cinema-red text-white scale-105'
                   : 'bg-bg-base text-text-secondary hover:bg-bg-elevated hover:text-white'
