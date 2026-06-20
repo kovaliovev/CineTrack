@@ -67,6 +67,13 @@ export default function FilmPoster({ movie, status, onClick, onRemoveStatus }: P
           </div>
         )
       )}
+
+      {/* TMDB audience score */}
+      {movie.vote_average != null && movie.vote_average > 0 && (
+        <div className="absolute bottom-2 left-2 z-10 bg-black/70 backdrop-blur-sm text-white text-[10px] font-semibold px-1.5 py-0.5 rounded pointer-events-none">
+          ★ {movie.vote_average.toFixed(1)}
+        </div>
+      )}
     </div>
   )
 }

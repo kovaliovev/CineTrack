@@ -15,8 +15,8 @@ describe('posterUrl', () => {
 describe('trailerKey', () => {
   const base: TMDBMovieDetail = {
     id: 1, title: 'Test', poster_path: null, release_date: '2020-01-01',
-    runtime: 100, overview: '', genres: [], credits: { crew: [] },
-    videos: { results: [] }
+    runtime: 100, overview: '', genres: [], belongs_to_collection: null,
+    credits: { crew: [], cast: [] }, videos: { results: [] }
   }
 
   it('returns YouTube key for official trailer', () => {

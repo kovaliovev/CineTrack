@@ -49,6 +49,21 @@ export interface TMDBMovie {
   release_date: string
   genre_ids: number[]
   overview: string
+  vote_average?: number
+}
+
+export interface CastMember {
+  id: number
+  name: string
+  character: string
+  profile_path: string | null
+  order: number
+}
+
+export interface TMDBCollection {
+  id: number
+  name: string
+  parts: TMDBMovie[]
 }
 
 export interface TMDBMovieDetail {
@@ -59,7 +74,11 @@ export interface TMDBMovieDetail {
   runtime: number | null
   overview: string
   genres: { id: number; name: string }[]
-  credits: { crew: { job: string; name: string }[] }
+  belongs_to_collection: { id: number; name: string; poster_path: string | null } | null
+  credits: {
+    crew: { job: string; name: string }[]
+    cast: CastMember[]
+  }
   videos: { results: { type: string; site: string; key: string; official: boolean }[] }
 }
 

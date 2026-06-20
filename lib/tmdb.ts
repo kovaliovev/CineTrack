@@ -1,5 +1,5 @@
 // lib/tmdb.ts
-import type { TMDBMovie, TMDBMovieDetail, TMDBGenre } from './types'
+import type { TMDBMovie, TMDBMovieDetail, TMDBGenre, TMDBCollection } from './types'
 
 const BASE = 'https://api.themoviedb.org/3'
 const key = () => process.env.TMDB_API_KEY!
@@ -15,6 +15,10 @@ function get<T>(path: string, params: Record<string, string> = {}, cache: Reques
 
 export function posterUrl(path: string | null): string | null {
   return path ? `https://image.tmdb.org/t/p/w500${path}` : null
+}
+
+export function profileUrl(path: string | null): string | null {
+  return path ? `https://image.tmdb.org/t/p/w185${path}` : null
 }
 
 export function trailerKey(detail: TMDBMovieDetail): string | null {
@@ -128,6 +132,10 @@ export async function fetchSurprise(): Promise<TMDBMovie> {
   }, 'no-store')
   const results = data.results
   return results[Math.floor(Math.random() * results.length)]
+}
+
+export async function fetchCollection(id: number): Promise<TMDBCollection> {
+  return get<TMDBCollection>(`/collection/${id}`)
 }
 
 export async function fetchRecommendations(id: number): Promise<TMDBMovie[]> {
