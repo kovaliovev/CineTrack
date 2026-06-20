@@ -12,6 +12,8 @@ export default function ProfilePage() {
   const [joinError, setJoinError] = useState('')
   const [createError, setCreateError] = useState('')
   const [creating, setCreating] = useState(false)
+  const [leaving, setLeaving] = useState(false)
+  const [confirmLeave, setConfirmLeave] = useState(false)
 
   async function handleLogout() {
     const supabase = createClient()
@@ -33,6 +35,21 @@ export default function ProfilePage() {
         setCreateError('Failed to create couple')
       }
       setCreating(false)
+    }
+  }
+
+  async function leaveCouple() {
+    setLeaving(true)
+    const res = await fetch('/api/couple', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'leave' }),
+    })
+    if (res.ok) {
+      window.location.reload()
+    } else {
+      setLeaving(false)
+      setConfirmLeave(false)
     }
   }
 
@@ -86,6 +103,34 @@ export default function ProfilePage() {
               ) : (
                 <p className="text-xs text-text-muted mt-3">Share this code with your partner</p>
               )}
+
+              <div className="mt-4 pt-4 border-t border-bg-border">
+                {!confirmLeave ? (
+                  <button
+                    onClick={() => setConfirmLeave(true)}
+                    className="text-xs text-text-muted hover:text-red-400 transition-colors"
+                  >
+                    Leave couple
+                  </button>
+                ) : (
+                  <div className="flex items-center gap-3">
+                    <span className="text-xs text-text-muted">Unlink both accounts?</span>
+                    <button
+                      onClick={leaveCouple}
+                      disabled={leaving}
+                      className="text-xs px-2.5 py-1 bg-red-950/60 text-red-400 rounded-lg hover:bg-red-900/60 transition-colors disabled:opacity-50"
+                    >
+                      {leaving ? 'Leaving…' : 'Yes, leave'}
+                    </button>
+                    <button
+                      onClick={() => setConfirmLeave(false)}
+                      className="text-xs text-text-muted hover:text-white transition-colors"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                )}
+              </div>
             </div>
           ) : (
             <div className="space-y-4">

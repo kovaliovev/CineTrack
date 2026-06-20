@@ -54,6 +54,32 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ ok: true })
   }
 
+  if (action === 'leave') {
+    const { data: profile } = await admin
+      .from('profiles')
+      .select('couple_id')
+      .eq('id', user.id)
+      .single()
+
+    if (!profile?.couple_id) {
+      return NextResponse.json({ error: 'No couple to leave' }, { status: 400 })
+    }
+
+    const { data: couple } = await admin
+      .from('couples')
+      .select('id, user1_id, user2_id')
+      .eq('id', profile.couple_id)
+      .single()
+
+    if (!couple) return NextResponse.json({ error: 'Couple not found' }, { status: 404 })
+
+    const memberIds = [couple.user1_id, couple.user2_id].filter((id): id is string => Boolean(id))
+    await admin.from('profiles').update({ couple_id: null }).in('id', memberIds)
+    await admin.from('couples').delete().eq('id', couple.id)
+
+    return NextResponse.json({ ok: true })
+  }
+
   return NextResponse.json({ error: 'Unknown action' }, { status: 400 })
 }
 

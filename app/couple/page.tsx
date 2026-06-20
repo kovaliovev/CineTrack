@@ -32,7 +32,7 @@ export default function CouplePage() {
             onClick={() => setTab('match')}
             className={`px-4 py-1.5 rounded text-sm font-medium transition-colors ${tab === 'match' ? 'bg-cinema-red text-white' : 'text-text-secondary hover:text-white'}`}
           >
-            Wishlist Match
+            Watch Tonight?
           </button>
           <button
             onClick={() => setTab('stats')}

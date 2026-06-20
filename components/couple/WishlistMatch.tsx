@@ -14,13 +14,13 @@ export default function WishlistMatch({ partnerId }: { partnerId: string }) {
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) return
 
-      const [{ data: mine }, { data: hers }] = await Promise.all([
+      const [{ data: mine }, { data: partnerData }] = await Promise.all([
         supabase.from('user_films').select('tmdb_id').eq('status', 'wishlist').eq('user_id', user.id),
         supabase.from('user_films').select('tmdb_id').eq('status', 'wishlist').eq('user_id', partnerId),
       ])
 
       const myIds = new Set((mine ?? []).map((r: any) => r.tmdb_id))
-      const matchIds = (hers ?? []).map((r: any) => r.tmdb_id).filter((id: number) => myIds.has(id))
+      const matchIds = (partnerData ?? []).map((r: any) => r.tmdb_id).filter((id: number) => myIds.has(id))
 
       if (!matchIds.length) { setMatches([]); return }
 
