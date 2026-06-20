@@ -10,6 +10,10 @@ export function useFilmStatus(
 ) {
   const [status, setStatus] = useState<FilmCardStatus>(initialStatus)
   const [loading, setLoading] = useState(false)
+
+  useEffect(() => {
+    setStatus(initialStatus)
+  }, [initialStatus.status, initialStatus.score])
   const [userId, setUserId] = useState<string | null>(null)
   const supabase = createClient()
 
