@@ -1,5 +1,5 @@
 'use client'
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import AppShell from '@/components/layout/AppShell'
 import FilmGrid from '@/components/films/FilmGrid'
@@ -25,7 +25,7 @@ const TYPE_LABELS: Record<string, string> = {
   recent: 'Recent Favorites',
 }
 
-export default function ExplorePage() {
+function ExplorePageInner() {
   const searchParams = useSearchParams()
   const initialType = searchParams.get('type') ?? ''
 
@@ -157,5 +157,13 @@ export default function ExplorePage() {
         {openFilmId && <FilmDrawer tmdbId={openFilmId} onClose={() => setOpenFilmId(null)} />}
       </div>
     </AppShell>
+  )
+}
+
+export default function ExplorePage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-bg-base" />}>
+      <ExplorePageInner />
+    </Suspense>
   )
 }
