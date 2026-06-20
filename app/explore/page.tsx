@@ -25,8 +25,15 @@ function ExplorePageInner() {
   const [searchQuery, setSearchQuery]   = useState(initialQuery)
   const [statuses, setStatuses]         = useState<Record<number, FilmCardStatus>>({})
   const [openFilmId, setOpenFilmId]     = useState<number | null>(null)
+  const [userId, setUserId]             = useState<string | null>(null)
   const sentinelRef  = useRef<HTMLDivElement>(null)
   const fetchingRef  = useRef(false)
+
+  useEffect(() => {
+    createClient().auth.getUser().then(({ data }) => {
+      if (data.user) setUserId(data.user.id)
+    })
+  }, [])
 
   // Debounce search input → searchQuery
   useEffect(() => {
@@ -92,10 +99,11 @@ function ExplorePageInner() {
   }, [totalPages, fetchPage])
 
   useEffect(() => {
+    if (!userId) return
     const ids = films.map(m => m.id)
     if (!ids.length) return
     const supabase = createClient()
-    supabase.from('user_films').select('tmdb_id, status, score').in('tmdb_id', ids)
+    supabase.from('user_films').select('tmdb_id, status, score').eq('user_id', userId).in('tmdb_id', ids)
       .then(({ data }) => {
         if (!data) return
         const map: Record<number, FilmCardStatus> = {}
