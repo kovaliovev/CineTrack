@@ -28,11 +28,14 @@ const TYPE_LABELS: Record<string, string> = {
 function ExplorePageInner() {
   const searchParams = useSearchParams()
   const initialType = searchParams.get('type') ?? ''
+  const initialQuery = searchParams.get('q') ?? ''
 
   const [films, setFilms] = useState<TMDBMovie[]>([])
   const [page, setPage] = useState(1)
   const [totalPages, setTotalPages] = useState(1)
   const [loading, setLoading] = useState(false)
+  const [searchQuery, setSearchQuery] = useState(initialQuery)
+  const [searchInput, setSearchInput] = useState(initialQuery)
   const [loadingMore, setLoadingMore] = useState(false)
   const [genres, setGenres] = useState<TMDBGenre[]>([])
   const [selectedGenre, setSelectedGenre] = useState<number | null>(null)
@@ -58,14 +61,12 @@ function ExplorePageInner() {
     else setLoadingMore(true)
 
     let url: string
-    if (isCurated && p === 1 && !selectedGenre && !selectedDecade) {
+    if (searchQuery.trim()) {
+      url = `/api/tmdb/search?q=${encodeURIComponent(searchQuery.trim())}`
+    } else if (isCurated && p === 1 && !selectedGenre && !selectedDecade) {
       url = `/api/tmdb/discover?type=${initialType}`
     } else {
-      const params = new URLSearchParams({
-        type: 'discover',
-        sort,
-        page: String(p),
-      })
+      const params = new URLSearchParams({ type: 'discover', sort, page: String(p) })
       if (selectedGenre) params.set('genre', String(selectedGenre))
       if (selectedDecade) params.set('decade', String(selectedDecade))
       url = `/api/tmdb/discover?${params}`
@@ -83,13 +84,13 @@ function ExplorePageInner() {
     setLoading(false)
     setLoadingMore(false)
     fetchingRef.current = false
-  }, [isCurated, initialType, selectedGenre, selectedDecade, sort])
+  }, [isCurated, initialType, selectedGenre, selectedDecade, sort, searchQuery])
 
-  // Reload when filters change
+  // Reload when filters or search change
   useEffect(() => {
     fetchingRef.current = false
     fetchPage(1, true)
-  }, [selectedGenre, selectedDecade, sort, fetchPage])
+  }, [selectedGenre, selectedDecade, sort, searchQuery, fetchPage])
 
   // Infinite scroll — observe sentinel div at bottom
   useEffect(() => {
@@ -123,7 +124,12 @@ function ExplorePageInner() {
       })
   }, [films])
 
-  const title = TYPE_LABELS[initialType] ?? 'Explore'
+  const title = searchQuery ? `Results for "${searchQuery}"` : (TYPE_LABELS[initialType] ?? 'Explore')
+
+  function handleSearchSubmit(e: React.FormEvent) {
+    e.preventDefault()
+    setSearchQuery(searchInput)
+  }
 
   return (
     <AppShell>
@@ -134,8 +140,32 @@ function ExplorePageInner() {
           <h1 className="text-lg font-bold">{title}</h1>
         </div>
 
-        {/* Filters */}
-        <div className="flex flex-col gap-3 mb-6">
+        {/* Search */}
+        <form onSubmit={handleSearchSubmit} className="flex gap-2 mb-4">
+          <div className="relative flex-1 max-w-sm">
+            <svg className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted pointer-events-none" width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+              <circle cx="6" cy="6" r="4.5" stroke="currentColor" strokeWidth="1.5"/>
+              <path d="M9.5 9.5L13 13" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+            </svg>
+            <input
+              value={searchInput}
+              onChange={e => setSearchInput(e.target.value)}
+              placeholder="Search films…"
+              className="w-full bg-bg-elevated border border-bg-border rounded-lg pl-9 pr-4 py-2 text-sm outline-none focus:border-cinema-red transition-colors"
+            />
+          </div>
+          <button type="submit" className="px-4 py-2 bg-bg-elevated border border-bg-border rounded-lg text-sm text-text-secondary hover:text-white hover:border-cinema-red transition-colors">
+            Search
+          </button>
+          {searchQuery && (
+            <button type="button" onClick={() => { setSearchQuery(''); setSearchInput('') }} className="px-4 py-2 bg-bg-elevated border border-bg-border rounded-lg text-sm text-text-secondary hover:text-white transition-colors">
+              Clear
+            </button>
+          )}
+        </form>
+
+        {/* Filters — hidden during search */}
+        {!searchQuery && <div className="flex flex-col gap-3 mb-6">
           {/* Sort */}
           <div className="flex items-center gap-2 flex-wrap">
             <span className="text-xs text-text-muted">Sort:</span>
@@ -155,7 +185,7 @@ function ExplorePageInner() {
           </div>
           <GenrePills genres={genres} selected={selectedGenre} onSelect={g => { setSelectedGenre(g) }} />
           <DecadeFilter selected={selectedDecade} onChange={setSelectedDecade} />
-        </div>
+        </div>}
 
         {loading ? (
           <div className="flex items-center justify-center h-64 text-text-muted text-sm">Loading…</div>
