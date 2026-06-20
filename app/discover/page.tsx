@@ -36,6 +36,13 @@ export default function DiscoverPage() {
   const [openFilmId, setOpenFilmId] = useState<number | null>(null)
   const [loaded, setLoaded] = useState(false)
   const [search, setSearch] = useState('')
+  const [userId, setUserId] = useState<string | null>(null)
+
+  useEffect(() => {
+    createClient().auth.getUser().then(({ data }) => {
+      if (data.user) setUserId(data.user.id)
+    })
+  }, [])
 
   useEffect(() => {
     Promise.all([
@@ -64,6 +71,27 @@ export default function DiscoverPage() {
         setStatuses(map)
       })
   }, [sections])
+
+  async function handleStatusChange(tmdbId: number, newStatus: FilmCardStatus) {
+    setStatuses(prev => ({ ...prev, [tmdbId]: newStatus }))
+    if (newStatus.status === null && userId) {
+      await createClient().from('user_films').delete()
+        .eq('tmdb_id', tmdbId)
+        .eq('user_id', userId)
+    }
+  }
+
+  function refreshStatuses() {
+    const ids = Object.values(sections).flat().map(m => m.id)
+    if (!ids.length) return
+    createClient().from('user_films').select('tmdb_id, status, score').in('tmdb_id', ids)
+      .then(({ data }) => {
+        if (!data) return
+        const map: Record<number, FilmCardStatus> = {}
+        data.forEach(uf => { map[uf.tmdb_id] = { status: uf.status, score: uf.score } })
+        setStatuses(map)
+      })
+  }
 
   async function surpriseMe() {
     const res = await fetch('/api/tmdb/discover?type=surprise')
@@ -136,12 +164,13 @@ export default function DiscoverPage() {
                 statuses={statuses}
                 onOpenDetail={setOpenFilmId}
                 seeAllHref="/explore"
+                onStatusChange={handleStatusChange}
               />
             ))
         }
 
         {openFilmId && (
-          <FilmDrawer tmdbId={openFilmId} onClose={() => setOpenFilmId(null)} />
+          <FilmDrawer tmdbId={openFilmId} onClose={() => { setOpenFilmId(null); refreshStatuses() }} />
         )}
       </div>
     </AppShell>

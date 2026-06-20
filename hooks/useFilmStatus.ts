@@ -33,6 +33,7 @@ export function useFilmStatus(
 
   const addToWishlist = useCallback(async () => {
     if (!userId) return
+    if (status.status === 'watched') return
     setLoading(true)
     const cacheResult = await ensureCached()
     if (cacheResult?.error) console.error('[useFilmStatus] films_cache upsert failed:', cacheResult.error)
@@ -43,7 +44,7 @@ export function useFilmStatus(
     if (error) console.error('[useFilmStatus] user_films upsert failed:', error)
     else setStatus({ status: 'wishlist', score: null })
     setLoading(false)
-  }, [tmdbId, userId, ensureCached, supabase])
+  }, [tmdbId, userId, ensureCached, supabase, status.status])
 
   const markWatched = useCallback(async (score: number) => {
     if (!userId) return

@@ -10,9 +10,10 @@ interface Props {
   statuses: Record<number, FilmCardStatus>
   onOpenDetail: (id: number) => void
   seeAllHref?: string
+  onStatusChange?: (tmdbId: number, newStatus: FilmCardStatus) => void
 }
 
-export default function FilmRow({ title, movies, statuses, onOpenDetail, seeAllHref }: Props) {
+export default function FilmRow({ title, movies, statuses, onOpenDetail, seeAllHref, onStatusChange }: Props) {
   const scrollRef = useRef<HTMLDivElement>(null)
 
   function scroll(dir: 'left' | 'right') {
@@ -66,6 +67,9 @@ export default function FilmRow({ title, movies, statuses, onOpenDetail, seeAllH
               movie={movie}
               status={statuses[movie.id] ?? { status: null, score: null }}
               onClick={() => onOpenDetail(movie.id)}
+              onRemoveStatus={onStatusChange
+                ? () => onStatusChange(movie.id, { status: null, score: null })
+                : undefined}
             />
           ))}
         </div>
