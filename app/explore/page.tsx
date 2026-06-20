@@ -67,7 +67,7 @@ function ExplorePageInner() {
     setLoading(false)
     setLoadingMore(false)
     fetchingRef.current = false
-  }, [isCurated, initialType, selectedGenre, selectedDecade, sort, searchQuery])
+  }, [selectedGenre, selectedDecade, sort, searchQuery])
 
   useEffect(() => {
     fetchingRef.current = false
