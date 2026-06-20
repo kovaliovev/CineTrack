@@ -1,5 +1,5 @@
 'use client'
-import { useState, useCallback } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import type { FilmCardStatus, Film } from '@/lib/types'
 
@@ -10,7 +10,14 @@ export function useFilmStatus(
 ) {
   const [status, setStatus] = useState<FilmCardStatus>(initialStatus)
   const [loading, setLoading] = useState(false)
+  const [userId, setUserId] = useState<string | null>(null)
   const supabase = createClient()
+
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data }) => {
+      if (data.user) setUserId(data.user.id)
+    })
+  }, [supabase])
 
   const ensureCached = useCallback(async () => {
     await supabase.from('films_cache').upsert(
@@ -21,34 +28,38 @@ export function useFilmStatus(
   }, [tmdbId, film, supabase])
 
   const addToWishlist = useCallback(async () => {
+    if (!userId) return
     setLoading(true)
     await ensureCached()
     const { error } = await supabase.from('user_films').upsert(
-      { tmdb_id: tmdbId, status: 'wishlist', score: null },
+      { tmdb_id: tmdbId, status: 'wishlist', score: null, user_id: userId },
       { onConflict: 'user_id,tmdb_id' }
     )
     if (!error) setStatus({ status: 'wishlist', score: null })
     setLoading(false)
-  }, [tmdbId, ensureCached, supabase])
+  }, [tmdbId, userId, ensureCached, supabase])
 
   const markWatched = useCallback(async (score: number) => {
+    if (!userId) return
     setLoading(true)
     await ensureCached()
     const { error } = await supabase.from('user_films').upsert(
-      { tmdb_id: tmdbId, status: 'watched', score },
+      { tmdb_id: tmdbId, status: 'watched', score, user_id: userId },
       { onConflict: 'user_id,tmdb_id' }
     )
     if (!error) setStatus({ status: 'watched', score })
     setLoading(false)
-  }, [tmdbId, ensureCached, supabase])
+  }, [tmdbId, userId, ensureCached, supabase])
 
   const removeFromList = useCallback(async () => {
+    if (!userId) return
     setLoading(true)
     await supabase.from('user_films').delete()
       .eq('tmdb_id', tmdbId)
+      .eq('user_id', userId)
     setStatus({ status: null, score: null })
     setLoading(false)
-  }, [tmdbId, supabase])
+  }, [tmdbId, userId, supabase])
 
   return { status, loading, addToWishlist, markWatched, removeFromList }
 }
