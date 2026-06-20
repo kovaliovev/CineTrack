@@ -17,7 +17,7 @@ $$;
 create table couples (
   id           uuid primary key default uuid_generate_v4(),
   invite_code  text unique not null default substr(md5(random()::text), 1, 8),
-  user1_id     uuid references auth.users(id) on delete cascade,
+  user1_id     uuid not null references auth.users(id) on delete cascade,
   user2_id     uuid references auth.users(id) on delete cascade,
   created_at   timestamptz default now()
 );
@@ -117,3 +117,21 @@ $$;
 create trigger on_auth_user_created
   after insert on auth.users
   for each row execute procedure handle_new_user();
+
+-- Auto-update updated_at on comment edits
+create or replace function update_updated_at()
+returns trigger language plpgsql as $$
+begin
+  new.updated_at = now();
+  return new;
+end;
+$$;
+
+create trigger on_comments_updated
+  before update on comments
+  for each row execute procedure update_updated_at();
+
+-- Indexes for common query patterns
+create index idx_user_films_user_id on user_films(user_id);
+create index idx_comments_tmdb_id on comments(tmdb_id);
+create index idx_profiles_couple_id on profiles(couple_id);
