@@ -68,7 +68,7 @@ export default function HerListPage() {
                 )}
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium truncate">{item.film?.title}</p>
-                  <p className="text-xs text-text-muted mt-0.5">{item.film?.year}</p>
+                  <p className="text-xs text-text-muted mt-0.5">{item.film?.year} · {item.film?.genres?.slice(0, 2).join(', ')}</p>
                 </div>
                 {item.status === 'watched' && item.score !== null && (
                   <span className="text-cinema-red font-bold text-sm">{item.score}</span>
