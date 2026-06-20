@@ -10,6 +10,7 @@ export default function ProfilePage() {
   const { inviteCode, partnerId, loading } = useCouple()
   const [code, setCode] = useState('')
   const [joinError, setJoinError] = useState('')
+  const [createError, setCreateError] = useState('')
   const [creating, setCreating] = useState(false)
 
   async function handleLogout() {
@@ -20,10 +21,17 @@ export default function ProfilePage() {
 
   async function createCouple() {
     setCreating(true)
+    setCreateError('')
     const res = await fetch('/api/couple', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'create' }) })
     if (res.ok) {
       window.location.reload()
     } else {
+      try {
+        const d = await res.json()
+        setCreateError(d?.error ?? 'Failed to create couple')
+      } catch {
+        setCreateError('Failed to create couple')
+      }
       setCreating(false)
     }
   }
@@ -90,6 +98,7 @@ export default function ProfilePage() {
                 >
                   {creating ? 'Creating…' : 'Create couple'}
                 </button>
+                {createError && <p className="text-cinema-red text-xs mt-2">{createError}</p>}
               </div>
               <div>
                 <p className="text-sm text-text-secondary mb-2">Or join with a partner's invite code:</p>
