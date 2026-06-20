@@ -16,13 +16,23 @@ export default function MyListPage() {
   const [sort, setSort]         = useState<Sort>('date')
   const [allItems, setAllItems] = useState<ListItem[]>([])
   const [openFilmId, setOpenFilmId] = useState<number | null>(null)
+  const [userId, setUserId] = useState<string | null>(null)
   const supabase = createClient()
 
-  useEffect(() => {
+  function loadItems(uid: string) {
     supabase.from('user_films')
       .select('*, film:films_cache(*)')
+      .eq('user_id', uid)
       .order('added_at', { ascending: false })
       .then(({ data }) => setAllItems((data ?? []) as ListItem[]))
+  }
+
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data }) => {
+      if (!data.user) return
+      setUserId(data.user.id)
+      loadItems(data.user.id)
+    })
   }, [supabase])
 
   async function remove(id: string) {
@@ -159,11 +169,7 @@ export default function MyListPage() {
 
       {openFilmId && <FilmDrawer tmdbId={openFilmId} onClose={() => {
         setOpenFilmId(null)
-        // Refresh list after drawer closes in case status changed
-        supabase.from('user_films')
-          .select('*, film:films_cache(*)')
-          .order('added_at', { ascending: false })
-          .then(({ data }) => setAllItems((data ?? []) as ListItem[]))
+        if (userId) loadItems(userId)
       }} />}
     </AppShell>
   )

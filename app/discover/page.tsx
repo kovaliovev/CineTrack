@@ -59,18 +59,20 @@ export default function DiscoverPage() {
   }, [])
 
   useEffect(() => {
-    const allFilms = Object.values(sections).flat()
-    const ids = allFilms.map(m => m.id)
+    if (!userId) return
+    const ids = Object.values(sections).flat().map(m => m.id)
     if (!ids.length) return
     const supabase = createClient()
-    supabase.from('user_films').select('tmdb_id, status, score').in('tmdb_id', ids)
+    supabase.from('user_films').select('tmdb_id, status, score')
+      .eq('user_id', userId)
+      .in('tmdb_id', ids)
       .then(({ data }) => {
         if (!data) return
         const map: Record<number, FilmCardStatus> = {}
         data.forEach(uf => { map[uf.tmdb_id] = { status: uf.status, score: uf.score } })
         setStatuses(map)
       })
-  }, [sections])
+  }, [sections, userId])
 
   async function handleStatusChange(tmdbId: number, newStatus: FilmCardStatus) {
     setStatuses(prev => ({ ...prev, [tmdbId]: newStatus }))
@@ -82,9 +84,12 @@ export default function DiscoverPage() {
   }
 
   function refreshStatuses() {
+    if (!userId) return
     const ids = Object.values(sections).flat().map(m => m.id)
     if (!ids.length) return
-    createClient().from('user_films').select('tmdb_id, status, score').in('tmdb_id', ids)
+    createClient().from('user_films').select('tmdb_id, status, score')
+      .eq('user_id', userId)
+      .in('tmdb_id', ids)
       .then(({ data }) => {
         if (!data) return
         const map: Record<number, FilmCardStatus> = {}
