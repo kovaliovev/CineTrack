@@ -18,10 +18,11 @@ export async function POST(req: NextRequest) {
       .single()
     if (error) return NextResponse.json({ error: error.message }, { status: 500 })
 
-    await supabase
+    const { error: profileError } = await supabase
       .from('profiles')
       .update({ couple_id: data.id })
       .eq('id', user.id)
+    if (profileError) return NextResponse.json({ error: profileError.message }, { status: 500 })
 
     return NextResponse.json({ invite_code: data.invite_code })
   }
@@ -39,8 +40,17 @@ export async function POST(req: NextRequest) {
     if (couple.user2_id) return NextResponse.json({ error: 'Couple already full' }, { status: 409 })
     if (couple.user1_id === user.id) return NextResponse.json({ error: 'Cannot join your own couple' }, { status: 400 })
 
-    await supabase.from('couples').update({ user2_id: user.id }).eq('id', couple.id)
-    await supabase.from('profiles').update({ couple_id: couple.id }).eq('id', user.id)
+    const { error: coupleUpdateError } = await supabase
+      .from('couples')
+      .update({ user2_id: user.id })
+      .eq('id', couple.id)
+    if (coupleUpdateError) return NextResponse.json({ error: coupleUpdateError.message }, { status: 500 })
+
+    const { error: profileUpdateError } = await supabase
+      .from('profiles')
+      .update({ couple_id: couple.id })
+      .eq('id', user.id)
+    if (profileUpdateError) return NextResponse.json({ error: profileUpdateError.message }, { status: 500 })
 
     return NextResponse.json({ ok: true })
   }
@@ -53,13 +63,14 @@ export async function GET() {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-  const { data: profile } = await supabase
+  const { data: profile, error: profileError } = await supabase
     .from('profiles')
     .select('couple_id')
     .eq('id', user.id)
     .single()
 
-  if (!profile?.couple_id) return NextResponse.json({ couple: null })
+  if (profileError || !profile) return NextResponse.json({ couple: null })
+  if (!profile.couple_id) return NextResponse.json({ couple: null })
 
   const { data: couple } = await supabase
     .from('couples')
