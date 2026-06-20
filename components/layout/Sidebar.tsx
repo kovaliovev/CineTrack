@@ -1,6 +1,7 @@
 'use client'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
+import Logo from '@/components/ui/Logo'
 
 const NAV = [
   {
@@ -54,13 +55,9 @@ export default function Sidebar() {
   return (
     <aside className="w-14 flex-shrink-0 bg-bg-sidebar border-r border-bg-border flex flex-col items-center py-4 gap-1">
       {/* Logo */}
-      <div className="w-8 h-8 rounded-full bg-cinema-red mb-4 flex items-center justify-center">
-        <svg width="14" height="10" viewBox="0 0 14 10" fill="none" aria-hidden="true">
-          <rect width="14" height="10" rx="2" fill="white" opacity="0.9"/>
-          <rect x="2" y="2" width="4" height="6" rx="1" fill="#e50914"/>
-          <rect x="8" y="2" width="4" height="6" rx="1" fill="#e50914"/>
-        </svg>
-      </div>
+      <Link href="/discover" className="mb-3" title="ReelTwo">
+        <Logo size="sm" />
+      </Link>
 
       <nav className="flex flex-col items-center gap-1">
         {NAV.map(item => {
