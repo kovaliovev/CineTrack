@@ -62,3 +62,35 @@ export async function fetchGenres(): Promise<TMDBGenre[]> {
   const data = await get<{ genres: TMDBGenre[] }>('/genre/movie/list')
   return data.genres
 }
+
+export async function fetchNowPlaying(): Promise<TMDBMovie[]> {
+  const data = await get<{ results: TMDBMovie[] }>('/movie/now_playing')
+  return data.results
+}
+
+export async function fetchUpcoming(): Promise<TMDBMovie[]> {
+  const data = await get<{ results: TMDBMovie[] }>('/movie/upcoming')
+  return data.results
+}
+
+export async function fetchPopular(): Promise<TMDBMovie[]> {
+  const data = await get<{ results: TMDBMovie[] }>('/movie/popular')
+  return data.results
+}
+
+export async function fetchAcclaimed(): Promise<TMDBMovie[]> {
+  const data = await get<{ results: TMDBMovie[] }>('/discover/movie', {
+    sort_by: 'vote_average.desc',
+    'vote_count.gte': '1000',
+  })
+  return data.results
+}
+
+export async function fetchByDecade(decade: number): Promise<TMDBMovie[]> {
+  const data = await get<{ results: TMDBMovie[] }>('/discover/movie', {
+    'primary_release_date.gte': `${decade}-01-01`,
+    'primary_release_date.lte': `${decade + 9}-12-31`,
+    sort_by: 'popularity.desc',
+  })
+  return data.results
+}
