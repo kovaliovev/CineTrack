@@ -32,7 +32,13 @@ export default function FilmDrawer({ tmdbId, onClose }: Props) {
   const [herStatus, setHerStatus] = useState<FilmCardStatus>({ status: null, score: null })
   const [userId, setUserId] = useState<string>('')
   const [showPicker, setShowPicker] = useState(false)
+  const [visible, setVisible] = useState(false)
   const supabase = createClient()
+
+  useEffect(() => {
+    const t = setTimeout(() => setVisible(true), 10)
+    return () => clearTimeout(t)
+  }, [])
 
   useEffect(() => {
     // Load film detail from TMDB proxy
@@ -82,12 +88,12 @@ export default function FilmDrawer({ tmdbId, onClose }: Props) {
     <>
       {/* Backdrop */}
       <div
-        className="fixed inset-0 bg-black/60 z-40"
+        className={`fixed inset-0 bg-black/60 z-40 transition-opacity duration-300 ${visible ? 'opacity-100' : 'opacity-0'}`}
         onClick={onClose}
       />
 
       {/* Drawer */}
-      <div className="fixed right-0 top-0 h-full w-full max-w-lg bg-bg-card border-l border-bg-border z-50 overflow-y-auto">
+      <div className={`fixed right-0 top-0 h-full w-full max-w-lg bg-bg-card border-l border-bg-border z-50 overflow-y-auto transition-transform duration-300 ${visible ? 'translate-x-0' : 'translate-x-full'}`}>
         {/* Close button */}
         <button
           onClick={onClose}
@@ -100,7 +106,28 @@ export default function FilmDrawer({ tmdbId, onClose }: Props) {
         </button>
 
         {!detail ? (
-          <div className="flex items-center justify-center h-64 text-text-muted">Loading…</div>
+          <div className="p-6 animate-pulse">
+            <div className="flex gap-5 mb-6">
+              <div className="w-28 flex-shrink-0 aspect-[2/3] rounded-lg bg-bg-elevated" />
+              <div className="flex-1 pt-1 space-y-3">
+                <div className="h-5 bg-bg-elevated rounded w-3/4" />
+                <div className="h-3 bg-bg-elevated rounded w-1/3" />
+                <div className="flex gap-1.5 mt-2">
+                  <div className="h-5 bg-bg-elevated rounded w-14" />
+                  <div className="h-5 bg-bg-elevated rounded w-16" />
+                  <div className="h-5 bg-bg-elevated rounded w-12" />
+                </div>
+                <div className="h-3 bg-bg-elevated rounded w-1/4 mt-1" />
+              </div>
+            </div>
+            <div className="space-y-2 mb-6">
+              <div className="h-3 bg-bg-elevated rounded" />
+              <div className="h-3 bg-bg-elevated rounded" />
+              <div className="h-3 bg-bg-elevated rounded w-4/5" />
+            </div>
+            <div className="h-10 bg-bg-elevated rounded-xl mb-3" />
+            <div className="h-10 bg-bg-elevated rounded-xl" />
+          </div>
         ) : (
           <div className="p-6">
             {/* Header */}

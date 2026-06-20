@@ -28,6 +28,7 @@ export default function DiscoverPage() {
   const [genres, setGenres] = useState<TMDBGenre[]>([])
   const [statuses, setStatuses] = useState<Record<number, FilmCardStatus>>({})
   const [openFilmId, setOpenFilmId] = useState<number | null>(null)
+  const [sectionsLoaded, setSectionsLoaded] = useState(false)
 
   // Filters — only one active at a time
   const [searchResults, setSearchResults] = useState<TMDBMovie[] | null>(null)
@@ -47,6 +48,7 @@ export default function DiscoverPage() {
       fetch('/api/tmdb/discover?type=genres').then(r => r.json()),
     ]).then(([trending, nowPlaying, upcoming, classics, hiddenGems, recent, genreList]) => {
       setSections({ trending, nowPlaying, upcoming, classics, hiddenGems, recent })
+      setSectionsLoaded(true)
       setGenres(Array.isArray(genreList) ? genreList : [])
     })
   }, [])
@@ -166,16 +168,29 @@ export default function DiscoverPage() {
             />
           </div>
         ) : (
-          rows.map(({ title, movies, type }) => (
-            <FilmRow
-              key={title}
-              title={title}
-              movies={movies}
-              statuses={statuses}
-              onOpenDetail={setOpenFilmId}
-              seeAllHref={`/explore?type=${type}`}
-            />
-          ))
+          !sectionsLoaded
+            ? Array.from({ length: 4 }).map((_, i) => (
+                <div key={i} className="mb-8">
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="h-4 bg-bg-elevated rounded w-40 animate-pulse" />
+                  </div>
+                  <div className="flex gap-3">
+                    {Array.from({ length: 7 }).map((_, j) => (
+                      <div key={j} className="flex-shrink-0 w-32 aspect-[2/3] rounded-lg bg-bg-elevated animate-pulse" />
+                    ))}
+                  </div>
+                </div>
+              ))
+            : rows.map(({ title, movies, type }) => (
+                <FilmRow
+                  key={title}
+                  title={title}
+                  movies={movies}
+                  statuses={statuses}
+                  onOpenDetail={setOpenFilmId}
+                  seeAllHref={`/explore?type=${type}`}
+                />
+              ))
         )}
 
         {openFilmId && (

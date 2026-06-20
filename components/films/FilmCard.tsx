@@ -28,6 +28,10 @@ export default function FilmCard({ movie, initialStatus, onOpenDetail }: Props) 
     setShowPicker(false)
   }
 
+  const Spinner = () => (
+    <span className="inline-block w-3 h-3 border border-current border-t-transparent rounded-full animate-spin" />
+  )
+
   return (
     <div className="relative group bg-bg-card rounded-xl overflow-hidden border border-transparent hover:border-cinema-red transition-all">
       {/* Poster */}
@@ -72,24 +76,24 @@ export default function FilmCard({ movie, initialStatus, onOpenDetail }: Props) 
             <button
               onClick={addToWishlist}
               disabled={loading}
-              className={`flex-1 text-xs py-1.5 rounded transition-colors ${
+              className={`flex-1 text-xs py-1.5 rounded transition-colors active:scale-95 ${
                 status.status === 'wishlist'
                   ? 'bg-cinema-red-dim border border-cinema-red-border text-cinema-red'
                   : 'bg-bg-elevated text-text-muted hover:bg-cinema-red hover:text-white'
               }`}
             >
-              {status.status === 'wishlist' ? '♥ Wish' : '+ Wish'}
+              {loading ? <Spinner /> : status.status === 'wishlist' ? '♥ Wish' : '+ Wish'}
             </button>
             <button
               onClick={() => setShowPicker(true)}
               disabled={loading}
-              className={`flex-1 text-xs py-1.5 rounded transition-colors ${
+              className={`flex-1 text-xs py-1.5 rounded transition-colors active:scale-95 ${
                 status.status === 'watched'
                   ? 'bg-white/10 border border-white/20 text-text-secondary'
                   : 'bg-bg-elevated text-text-muted hover:bg-bg-elevated hover:text-white'
               }`}
             >
-              {status.status === 'watched' ? `✓ ${status.score}` : '✓ Seen'}
+              {loading ? <Spinner /> : status.status === 'watched' ? `✓ ${status.score}` : '✓ Seen'}
             </button>
           </div>
         )}

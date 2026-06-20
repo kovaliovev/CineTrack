@@ -54,19 +54,22 @@ export default function FilmRow({ title, movies, statuses, onOpenDetail, seeAllH
           </button>
         </div>
       </div>
-      <div
-        ref={scrollRef}
-        className="flex gap-3 overflow-x-auto scrollbar-hide pb-1"
-        style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
-      >
-        {movies.map(movie => (
-          <FilmPoster
-            key={movie.id}
-            movie={movie}
-            status={statuses[movie.id] ?? { status: null, score: null }}
-            onClick={() => onOpenDetail(movie.id)}
-          />
-        ))}
+      <div className="relative">
+        <div
+          ref={scrollRef}
+          className="flex gap-3 overflow-x-auto pb-1"
+          style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+        >
+          {movies.map(movie => (
+            <FilmPoster
+              key={movie.id}
+              movie={movie}
+              status={statuses[movie.id] ?? { status: null, score: null }}
+              onClick={() => onOpenDetail(movie.id)}
+            />
+          ))}
+        </div>
+        <div className="absolute right-0 top-0 h-full w-16 bg-gradient-to-l from-bg-base to-transparent pointer-events-none" />
       </div>
     </div>
   )
