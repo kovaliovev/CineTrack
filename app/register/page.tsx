@@ -6,7 +6,7 @@ import { createClient } from '@/lib/supabase/client'
 
 export default function RegisterPage() {
   const router = useRouter()
-  const [email, setEmail] = useState('')
+  const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [inviteCode, setInviteCode] = useState('')
   const [error, setError] = useState('')
@@ -16,7 +16,16 @@ export default function RegisterPage() {
     e.preventDefault()
     setLoading(true)
     setError('')
+
+    const trimmed = username.trim().toLowerCase()
+    if (!/^[a-z0-9_]{2,20}$/.test(trimmed)) {
+      setError('Username must be 2–20 characters: letters, numbers, underscores only')
+      setLoading(false)
+      return
+    }
+
     const supabase = createClient()
+    const email = `${trimmed}@reeltwo.app`
 
     const { error: signUpError } = await supabase.auth.signUp({ email, password })
     if (signUpError) {
@@ -49,16 +58,18 @@ export default function RegisterPage() {
       <div className="w-full max-w-sm">
         <div className="flex items-center gap-2 mb-8">
           <div className="w-8 h-8 rounded-full bg-cinema-red" />
-          <span className="text-xl font-bold tracking-wide">CineTrack</span>
+          <span className="text-xl font-bold tracking-wide">ReelTwo</span>
         </div>
         <h1 className="text-2xl font-semibold mb-6">Create account</h1>
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           <input
-            type="email"
-            placeholder="Email"
-            value={email}
-            onChange={e => setEmail(e.target.value)}
+            type="text"
+            placeholder="Username"
+            value={username}
+            onChange={e => setUsername(e.target.value)}
             required
+            autoCapitalize="none"
+            autoCorrect="off"
             className="bg-bg-elevated border border-bg-border rounded-lg px-4 py-3 text-sm outline-none focus:border-cinema-red transition-colors"
           />
           <input

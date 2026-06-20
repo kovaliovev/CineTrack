@@ -6,7 +6,7 @@ import { createClient } from '@/lib/supabase/client'
 
 export default function LoginPage() {
   const router = useRouter()
-  const [email, setEmail] = useState('')
+  const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
@@ -16,9 +16,10 @@ export default function LoginPage() {
     setLoading(true)
     setError('')
     const supabase = createClient()
+    const email = `${username.trim().toLowerCase()}@reeltwo.app`
     const { error } = await supabase.auth.signInWithPassword({ email, password })
     if (error) {
-      setError(error.message)
+      setError('Invalid username or password')
       setLoading(false)
     } else {
       router.push('/discover')
@@ -31,16 +32,18 @@ export default function LoginPage() {
       <div className="w-full max-w-sm">
         <div className="flex items-center gap-2 mb-8">
           <div className="w-8 h-8 rounded-full bg-cinema-red" />
-          <span className="text-xl font-bold tracking-wide">CineTrack</span>
+          <span className="text-xl font-bold tracking-wide">ReelTwo</span>
         </div>
         <h1 className="text-2xl font-semibold mb-6">Sign in</h1>
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           <input
-            type="email"
-            placeholder="Email"
-            value={email}
-            onChange={e => setEmail(e.target.value)}
+            type="text"
+            placeholder="Username"
+            value={username}
+            onChange={e => setUsername(e.target.value)}
             required
+            autoCapitalize="none"
+            autoCorrect="off"
             className="bg-bg-elevated border border-bg-border rounded-lg px-4 py-3 text-sm outline-none focus:border-cinema-red transition-colors"
           />
           <input
