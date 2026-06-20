@@ -135,7 +135,7 @@ export default function DiscoverPage() {
                 movies={sections[key]}
                 statuses={statuses}
                 onOpenDetail={setOpenFilmId}
-                seeAllHref={`/explore?type=${type}`}
+                seeAllHref="/explore"
               />
             ))
         }
