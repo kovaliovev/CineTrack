@@ -21,12 +21,12 @@ const EMPTY: Sections = {
 }
 
 const rows = [
-  { title: 'Trending This Week', key: 'trending' as const, type: 'trending' },
-  { title: 'In Theaters Now',    key: 'nowPlaying' as const, type: 'now_playing' },
-  { title: 'Coming Soon',        key: 'upcoming' as const, type: 'upcoming' },
-  { title: 'All-Time Classics',  key: 'classics' as const, type: 'classics' },
-  { title: 'Hidden Gems',        key: 'hiddenGems' as const, type: 'hidden_gems' },
-  { title: 'Recent Favorites',   key: 'recent' as const, type: 'recent' },
+  { title: 'Trending This Week', key: 'trending' as const },
+  { title: 'In Theaters Now',    key: 'nowPlaying' as const },
+  { title: 'Coming Soon',        key: 'upcoming' as const },
+  { title: 'All-Time Classics',  key: 'classics' as const },
+  { title: 'Hidden Gems',        key: 'hiddenGems' as const },
+  { title: 'Recent Favorites',   key: 'recent' as const },
 ]
 
 export default function DiscoverPage() {
@@ -128,9 +128,9 @@ export default function DiscoverPage() {
                 </div>
               </div>
             ))
-          : rows.map(({ title, key, type }) => (
+          : rows.map(({ title, key }) => (
               <FilmRow
-                key={type}
+                key={key}
                 title={title}
                 movies={sections[key]}
                 statuses={statuses}

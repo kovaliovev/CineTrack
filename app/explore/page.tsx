@@ -8,18 +8,8 @@ import FilterBar from '@/components/ui/FilterBar'
 import { createClient } from '@/lib/supabase/client'
 import type { TMDBMovie, TMDBGenre, FilmCardStatus } from '@/lib/types'
 
-const TYPE_LABELS: Record<string, string> = {
-  trending:    'Trending This Week',
-  now_playing: 'In Theaters Now',
-  upcoming:    'Coming Soon',
-  classics:    'All-Time Classics',
-  hidden_gems: 'Hidden Gems',
-  recent:      'Recent Favorites',
-}
-
 function ExplorePageInner() {
   const searchParams = useSearchParams()
-  const initialType  = searchParams.get('type') ?? ''
   const initialQuery = searchParams.get('q') ?? ''
 
   const [films, setFilms]               = useState<TMDBMovie[]>([])
@@ -51,8 +41,6 @@ function ExplorePageInner() {
       .then(data => setGenres(Array.isArray(data) ? data : []))
   }, [])
 
-  const isCurated = initialType && TYPE_LABELS[initialType]
-
   const fetchPage = useCallback(async (p: number, replace = false) => {
     if (replace) setLoading(true)
     else setLoadingMore(true)
@@ -60,8 +48,6 @@ function ExplorePageInner() {
     let url: string
     if (searchQuery.trim()) {
       url = `/api/tmdb/search?q=${encodeURIComponent(searchQuery.trim())}`
-    } else if (isCurated && p === 1 && !selectedGenre && !selectedDecade) {
-      url = `/api/tmdb/discover?type=${initialType}`
     } else {
       const params = new URLSearchParams({ type: 'discover', sort, page: String(p) })
       if (selectedGenre)  params.set('genre',  String(selectedGenre))
@@ -118,9 +104,7 @@ function ExplorePageInner() {
       })
   }, [films])
 
-  const pageTitle = searchQuery
-    ? `Results for "${searchQuery}"`
-    : (TYPE_LABELS[initialType] ?? 'Explore')
+  const pageTitle = searchQuery ? `Results for "${searchQuery}"` : 'Explore'
 
   return (
     <AppShell>
