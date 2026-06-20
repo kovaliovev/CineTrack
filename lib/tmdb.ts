@@ -73,17 +73,61 @@ export async function fetchUpcoming(): Promise<TMDBMovie[]> {
   return data.results
 }
 
-export async function fetchPopular(): Promise<TMDBMovie[]> {
-  const data = await get<{ results: TMDBMovie[] }>('/movie/popular')
+export async function fetchClassics(): Promise<TMDBMovie[]> {
+  const data = await get<{ results: TMDBMovie[] }>('/discover/movie', {
+    sort_by: 'vote_count.desc',
+    'vote_average.gte': '8',
+  })
   return data.results
 }
 
-export async function fetchAcclaimed(): Promise<TMDBMovie[]> {
+export async function fetchHiddenGems(): Promise<TMDBMovie[]> {
   const data = await get<{ results: TMDBMovie[] }>('/discover/movie', {
     sort_by: 'vote_average.desc',
-    'vote_count.gte': '1000',
+    'vote_count.gte': '200',
+    'vote_count.lte': '3000',
   })
   return data.results
+}
+
+export async function fetchRecentFavorites(): Promise<TMDBMovie[]> {
+  const data = await get<{ results: TMDBMovie[] }>('/discover/movie', {
+    sort_by: 'vote_average.desc',
+    'primary_release_date.gte': '2020-01-01',
+    'vote_count.gte': '500',
+  })
+  return data.results
+}
+
+export async function fetchDiscover(params: {
+  sort_by?: string
+  genre?: number
+  decade?: number
+  page?: number
+}): Promise<{ results: TMDBMovie[]; total_pages: number }> {
+  const p: Record<string, string> = {
+    sort_by: params.sort_by ?? 'popularity.desc',
+    page: String(params.page ?? 1),
+  }
+  if (params.genre) p['with_genres'] = String(params.genre)
+  if (params.decade) {
+    p['primary_release_date.gte'] = `${params.decade}-01-01`
+    p['primary_release_date.lte'] = `${params.decade + 9}-12-31`
+  }
+  p['vote_count.gte'] = '50'
+  return get<{ results: TMDBMovie[]; total_pages: number }>('/discover/movie', p, 'no-store')
+}
+
+export async function fetchSurprise(): Promise<TMDBMovie> {
+  const page = Math.floor(Math.random() * 8) + 1
+  const data = await get<{ results: TMDBMovie[] }>('/discover/movie', {
+    sort_by: 'vote_count.desc',
+    'vote_average.gte': '7.5',
+    'vote_count.gte': '5000',
+    page: String(page),
+  }, 'no-store')
+  const results = data.results
+  return results[Math.floor(Math.random() * results.length)]
 }
 
 export async function fetchByDecade(decade: number): Promise<TMDBMovie[]> {

@@ -12,15 +12,15 @@ import type { TMDBMovie, TMDBGenre, FilmCardStatus } from '@/lib/types'
 
 type Sections = {
   trending: TMDBMovie[]
-  popular: TMDBMovie[]
   nowPlaying: TMDBMovie[]
   upcoming: TMDBMovie[]
-  topRated: TMDBMovie[]
-  acclaimed: TMDBMovie[]
+  classics: TMDBMovie[]
+  hiddenGems: TMDBMovie[]
+  recent: TMDBMovie[]
 }
 
 const EMPTY: Sections = {
-  trending: [], popular: [], nowPlaying: [], upcoming: [], topRated: [], acclaimed: [],
+  trending: [], nowPlaying: [], upcoming: [], classics: [], hiddenGems: [], recent: [],
 }
 
 export default function DiscoverPage() {
@@ -37,17 +37,16 @@ export default function DiscoverPage() {
 
   // Load all home rows + genres in parallel on mount
   useEffect(() => {
-    const fetches = [
+    Promise.all([
       fetch('/api/tmdb/discover?type=trending').then(r => r.json()),
-      fetch('/api/tmdb/discover?type=popular').then(r => r.json()),
       fetch('/api/tmdb/discover?type=now_playing').then(r => r.json()),
       fetch('/api/tmdb/discover?type=upcoming').then(r => r.json()),
-      fetch('/api/tmdb/discover?type=top_rated').then(r => r.json()),
-      fetch('/api/tmdb/discover?type=acclaimed').then(r => r.json()),
+      fetch('/api/tmdb/discover?type=classics').then(r => r.json()),
+      fetch('/api/tmdb/discover?type=hidden_gems').then(r => r.json()),
+      fetch('/api/tmdb/discover?type=recent').then(r => r.json()),
       fetch('/api/tmdb/discover?type=genres').then(r => r.json()),
-    ]
-    Promise.all(fetches).then(([trending, popular, nowPlaying, upcoming, topRated, acclaimed, genreList]) => {
-      setSections({ trending, popular, nowPlaying, upcoming, topRated, acclaimed })
+    ]).then(([trending, nowPlaying, upcoming, classics, hiddenGems, recent, genreList]) => {
+      setSections({ trending, nowPlaying, upcoming, classics, hiddenGems, recent })
       setGenres(Array.isArray(genreList) ? genreList : [])
     })
   }, [])
@@ -57,8 +56,8 @@ export default function DiscoverPage() {
     const inFilterMode = searchResults !== null || selectedGenre !== null || selectedDecade !== null
     const visible = inFilterMode
       ? filterFilms
-      : [...sections.trending, ...sections.popular, ...sections.nowPlaying,
-         ...sections.upcoming, ...sections.topRated, ...sections.acclaimed]
+      : [...sections.trending, ...sections.nowPlaying, ...sections.upcoming,
+         ...sections.classics, ...sections.hiddenGems, ...sections.recent]
     const ids = visible.map(m => m.id)
     if (!ids.length) return
     const supabase = createClient()
@@ -109,10 +108,9 @@ export default function DiscoverPage() {
   }
 
   async function surpriseMe() {
-    const pool = sections.acclaimed.length ? sections.acclaimed : sections.topRated
-    if (!pool.length) return
-    const pick = pool[Math.floor(Math.random() * pool.length)]
-    setOpenFilmId(pick.id)
+    const res = await fetch('/api/tmdb/discover?type=surprise')
+    const film = await res.json()
+    if (film?.id) setOpenFilmId(film.id)
   }
 
   const filterMode = searchResults !== null || selectedGenre !== null || selectedDecade !== null
@@ -120,12 +118,12 @@ export default function DiscoverPage() {
 
   // Section rows config
   const rows = [
-    { title: 'Trending This Week', movies: sections.trending },
-    { title: 'Popular Right Now', movies: sections.popular },
-    { title: 'Now Playing', movies: sections.nowPlaying },
-    { title: 'Coming Soon', movies: sections.upcoming },
-    { title: 'Critically Acclaimed', movies: sections.acclaimed },
-    { title: 'All-Time Top Rated', movies: sections.topRated },
+    { title: 'Trending This Week', movies: sections.trending, type: 'trending' },
+    { title: 'In Theaters Now', movies: sections.nowPlaying, type: 'now_playing' },
+    { title: 'Coming Soon', movies: sections.upcoming, type: 'upcoming' },
+    { title: 'All-Time Classics', movies: sections.classics, type: 'classics' },
+    { title: 'Hidden Gems', movies: sections.hiddenGems, type: 'hidden_gems' },
+    { title: 'Recent Favorites', movies: sections.recent, type: 'recent' },
   ]
 
   return (
@@ -168,13 +166,14 @@ export default function DiscoverPage() {
             />
           </div>
         ) : (
-          rows.map(({ title, movies }) => (
+          rows.map(({ title, movies, type }) => (
             <FilmRow
               key={title}
               title={title}
               movies={movies}
               statuses={statuses}
               onOpenDetail={setOpenFilmId}
+              seeAllHref={`/explore?type=${type}`}
             />
           ))
         )}

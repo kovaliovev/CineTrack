@@ -1,5 +1,6 @@
 'use client'
 import { useRef } from 'react'
+import Link from 'next/link'
 import type { TMDBMovie, FilmCardStatus } from '@/lib/types'
 import FilmPoster from './FilmPoster'
 
@@ -8,9 +9,10 @@ interface Props {
   movies: TMDBMovie[]
   statuses: Record<number, FilmCardStatus>
   onOpenDetail: (id: number) => void
+  seeAllHref?: string
 }
 
-export default function FilmRow({ title, movies, statuses, onOpenDetail }: Props) {
+export default function FilmRow({ title, movies, statuses, onOpenDetail, seeAllHref }: Props) {
   const scrollRef = useRef<HTMLDivElement>(null)
 
   function scroll(dir: 'left' | 'right') {
@@ -23,7 +25,14 @@ export default function FilmRow({ title, movies, statuses, onOpenDetail }: Props
   return (
     <div className="mb-8">
       <div className="flex items-center justify-between mb-3">
-        <h2 className="text-sm font-semibold text-text-primary">{title}</h2>
+        <div className="flex items-center gap-3">
+          <h2 className="text-sm font-semibold text-text-primary">{title}</h2>
+          {seeAllHref && (
+            <Link href={seeAllHref} className="text-xs text-text-muted hover:text-cinema-red transition-colors">
+              See all →
+            </Link>
+          )}
+        </div>
         <div className="flex gap-1">
           <button
             onClick={() => scroll('left')}
