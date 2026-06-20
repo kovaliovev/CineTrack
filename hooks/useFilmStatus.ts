@@ -20,7 +20,7 @@ export function useFilmStatus(
   }, [supabase])
 
   const ensureCached = useCallback(async () => {
-    await supabase.from('films_cache').upsert(
+    return supabase.from('films_cache').upsert(
       { tmdb_id: tmdbId, title: film.title, poster_url: film.poster_url,
         year: film.year, genres: film.genres },
       { onConflict: 'tmdb_id', ignoreDuplicates: true }
@@ -30,24 +30,28 @@ export function useFilmStatus(
   const addToWishlist = useCallback(async () => {
     if (!userId) return
     setLoading(true)
-    await ensureCached()
+    const cacheResult = await ensureCached()
+    if (cacheResult?.error) console.error('[useFilmStatus] films_cache upsert failed:', cacheResult.error)
     const { error } = await supabase.from('user_films').upsert(
       { tmdb_id: tmdbId, status: 'wishlist', score: null, user_id: userId },
       { onConflict: 'user_id,tmdb_id' }
     )
-    if (!error) setStatus({ status: 'wishlist', score: null })
+    if (error) console.error('[useFilmStatus] user_films upsert failed:', error)
+    else setStatus({ status: 'wishlist', score: null })
     setLoading(false)
   }, [tmdbId, userId, ensureCached, supabase])
 
   const markWatched = useCallback(async (score: number) => {
     if (!userId) return
     setLoading(true)
-    await ensureCached()
+    const cacheResult = await ensureCached()
+    if (cacheResult?.error) console.error('[useFilmStatus] films_cache upsert failed:', cacheResult.error)
     const { error } = await supabase.from('user_films').upsert(
       { tmdb_id: tmdbId, status: 'watched', score, user_id: userId },
       { onConflict: 'user_id,tmdb_id' }
     )
-    if (!error) setStatus({ status: 'watched', score })
+    if (error) console.error('[useFilmStatus] user_films upsert failed:', error)
+    else setStatus({ status: 'watched', score })
     setLoading(false)
   }, [tmdbId, userId, ensureCached, supabase])
 
