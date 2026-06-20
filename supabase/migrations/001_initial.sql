@@ -2,6 +2,14 @@
 
 create extension if not exists "uuid-ossp";
 
+create table couples (
+  id           uuid primary key default uuid_generate_v4(),
+  invite_code  text unique not null default substr(md5(random()::text), 1, 8),
+  user1_id     uuid not null references auth.users(id) on delete cascade,
+  user2_id     uuid references auth.users(id) on delete cascade,
+  created_at   timestamptz default now()
+);
+
 -- Helper: returns partner's user id for the current auth user
 create or replace function get_partner_id()
 returns uuid language sql security definer stable as $$
@@ -13,14 +21,6 @@ returns uuid language sql security definer stable as $$
   where user1_id = auth.uid() or user2_id = auth.uid()
   limit 1;
 $$;
-
-create table couples (
-  id           uuid primary key default uuid_generate_v4(),
-  invite_code  text unique not null default substr(md5(random()::text), 1, 8),
-  user1_id     uuid not null references auth.users(id) on delete cascade,
-  user2_id     uuid references auth.users(id) on delete cascade,
-  created_at   timestamptz default now()
-);
 
 create table profiles (
   id            uuid primary key references auth.users(id) on delete cascade,
