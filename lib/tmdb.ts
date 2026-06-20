@@ -4,12 +4,13 @@ import type { TMDBMovie, TMDBMovieDetail, TMDBGenre } from './types'
 const BASE = 'https://api.themoviedb.org/3'
 const key = () => process.env.TMDB_API_KEY!
 
-function get<T>(path: string, params: Record<string, string> = {}): Promise<T> {
+function get<T>(path: string, params: Record<string, string> = {}, cache: RequestInit['cache'] | { revalidate: number } = { revalidate: 3600 }): Promise<T> {
   const url = new URL(BASE + path)
   url.searchParams.set('api_key', key())
   url.searchParams.set('language', 'en-US')
   Object.entries(params).forEach(([k, v]) => url.searchParams.set(k, v))
-  return fetch(url.toString(), { next: { revalidate: 3600 } }).then(r => r.json())
+  const init = typeof cache === 'string' ? { cache } : { next: cache }
+  return fetch(url.toString(), init as RequestInit).then(r => r.json())
 }
 
 export function posterUrl(path: string | null): string | null {
@@ -47,7 +48,7 @@ export async function fetchByGenre(genreId: number): Promise<TMDBMovie[]> {
 
 export async function fetchSearch(query: string): Promise<TMDBMovie[]> {
   if (!query.trim()) return []
-  const data = await get<{ results: TMDBMovie[] }>('/search/movie', { query })
+  const data = await get<{ results: TMDBMovie[] }>('/search/movie', { query }, 'no-store')
   return data.results
 }
 
