@@ -12,7 +12,7 @@ type Sort = 'date' | 'score' | 'title'
 
 type ListItem = UserFilm & { film: Film | null }
 
-export default function HerListPage() {
+export default function PartnerListPage() {
   const [tab, setTab]           = useState<Tab>('watched')
   const [sort, setSort]         = useState<Sort>('date')
   const [allItems, setAllItems] = useState<ListItem[]>([])
@@ -34,7 +34,7 @@ export default function HerListPage() {
   if (!partnerId) return (
     <AppShell>
       <div className="p-6">
-        <h1 className="text-lg font-bold mb-3">Her List</h1>
+        <h1 className="text-lg font-bold mb-3">Partner's List</h1>
         <p className="text-text-muted text-sm">Not linked to a partner yet.</p>
         <Link href="/profile" className="text-xs text-cinema-red hover:underline mt-2 inline-block">
           Share your invite code →
@@ -56,7 +56,7 @@ export default function HerListPage() {
   return (
     <AppShell>
       <div className="p-6 max-w-screen-xl mx-auto">
-        <h1 className="text-lg font-bold mb-5">Her List</h1>
+        <h1 className="text-lg font-bold mb-5">Partner's List</h1>
 
         {/* Tabs with counts */}
         <div className="flex gap-1 bg-bg-elevated rounded-lg p-1 w-fit mb-5">

@@ -28,8 +28,8 @@ const NAV = [
     ),
   },
   {
-    href: '/her-list',
-    label: 'Her List',
+    href: '/partner-list',
+    label: 'Partner',
     icon: (
       <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
         <circle cx="9" cy="7" r="4" fill="currentColor"/>

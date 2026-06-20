@@ -64,19 +64,22 @@ export async function GET() {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-  const { data: profile } = await supabase
+  const admin = createAdminClient()
+  const noStore = { headers: { 'Cache-Control': 'no-store' } }
+
+  const { data: profile } = await admin
     .from('profiles')
     .select('couple_id')
     .eq('id', user.id)
     .single()
 
-  if (!profile?.couple_id) return NextResponse.json({ couple: null })
+  if (!profile?.couple_id) return NextResponse.json({ couple: null }, noStore)
 
-  const { data: couple } = await supabase
+  const { data: couple } = await admin
     .from('couples')
     .select('id, invite_code, user1_id, user2_id')
     .eq('id', profile.couple_id)
     .single()
 
-  return NextResponse.json({ couple: couple ?? null })
+  return NextResponse.json({ couple: couple ?? null }, noStore)
 }

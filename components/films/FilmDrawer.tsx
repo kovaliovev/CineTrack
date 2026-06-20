@@ -29,7 +29,7 @@ interface Props {
 export default function FilmDrawer({ tmdbId, onClose }: Props) {
   const [detail, setDetail] = useState<FilmDetail | null>(null)
   const [myInitial, setMyInitial] = useState<FilmCardStatus>({ status: null, score: null })
-  const [herStatus, setHerStatus] = useState<FilmCardStatus>({ status: null, score: null })
+  const [partnerStatus, setPartnerStatus] = useState<FilmCardStatus>({ status: null, score: null })
   const [userId, setUserId] = useState<string>('')
   const [showPicker, setShowPicker] = useState(false)
   const [visible, setVisible] = useState(false)
@@ -60,13 +60,13 @@ export default function FilmDrawer({ tmdbId, onClose }: Props) {
           if (uf) setMyInitial({ status: uf.status, score: uf.score })
         })
 
-      // Load her status (partner's row via RLS — can read partner rows)
+      // Load partner's status (RLS allows reading partner rows)
       supabase.from('user_films').select('status, score, user_id')
         .eq('tmdb_id', tmdbId)
         .neq('user_id', data.user.id)
         .maybeSingle()
         .then(({ data: uf }) => {
-          if (uf) setHerStatus({ status: uf.status, score: uf.score })
+          if (uf) setPartnerStatus({ status: uf.status, score: uf.score })
         })
     })
   }, [tmdbId])
@@ -240,15 +240,15 @@ export default function FilmDrawer({ tmdbId, onClose }: Props) {
               )}
             </div>
 
-            {/* Her status */}
+            {/* Partner's status */}
             <div className="bg-bg-elevated rounded-xl p-4 mb-5">
-              <p className="text-xs text-text-muted mb-2">Her status</p>
+              <p className="text-xs text-text-muted mb-2">Partner's status</p>
               <span className="text-sm text-text-secondary">
-                {herStatus.status === 'watched'
-                  ? `Watched · ${herStatus.score}`
-                  : herStatus.status === 'wishlist'
-                  ? 'In her wishlist'
-                  : "She hasn't seen it yet"}
+                {partnerStatus.status === 'watched'
+                  ? `Watched · ${partnerStatus.score}`
+                  : partnerStatus.status === 'wishlist'
+                  ? 'In wishlist'
+                  : 'Not seen yet'}
               </span>
             </div>
 
