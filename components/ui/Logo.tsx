@@ -4,40 +4,27 @@ interface Props {
   className?: string
 }
 
-// Double film reel icon — two reels side by side (ReelTwo concept)
-// viewBox 0 0 44 24: left reel cx=11 cy=12 r=9, right reel cx=33 cy=12 r=9, 4px gap between
+// Two overlapping filled circles — same visual language as the Couple nav icon
+// viewBox 0 0 22 18: mirrors the sidebar Couple icon (cx=6/12, r=5) scaled up
 function ReelIcon({ scale }: { scale: number }) {
-  const w = Math.round(44 * scale)
-  const h = Math.round(24 * scale)
+  const w = Math.round(22 * scale)
+  const h = Math.round(18 * scale)
   return (
     <svg
       width={w}
       height={h}
-      viewBox="0 0 44 24"
+      viewBox="0 0 22 18"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
       aria-hidden="true"
     >
-      {/* Left reel */}
-      <circle cx="11" cy="12" r="9" stroke="#e50914" strokeWidth="1.5"/>
-      <circle cx="11" cy="12" r="3" fill="#e50914"/>
-      {/* Left sprocket marks — top, bottom, outer-left */}
-      <circle cx="11" cy="2.2" r="1.3" fill="#e50914"/>
-      <circle cx="11" cy="21.8" r="1.3" fill="#e50914"/>
-      <circle cx="1.3"  cy="12"  r="1.3" fill="#e50914"/>
-
-      {/* Right reel */}
-      <circle cx="33" cy="12" r="9" stroke="#e50914" strokeWidth="1.5"/>
-      <circle cx="33" cy="12" r="3" fill="#e50914"/>
-      {/* Right sprocket marks — top, bottom, outer-right */}
-      <circle cx="33" cy="2.2"  r="1.3" fill="#e50914"/>
-      <circle cx="33" cy="21.8" r="1.3" fill="#e50914"/>
-      <circle cx="42.7" cy="12" r="1.3" fill="#e50914"/>
+      <circle cx="8"  cy="9" r="7" fill="#e50914" opacity="0.9"/>
+      <circle cx="14" cy="9" r="7" fill="#e50914" opacity="0.5"/>
     </svg>
   )
 }
 
-const SCALES = { sm: 0.72, md: 1, lg: 1.5 }
+const SCALES = { sm: 1, md: 1.5, lg: 2 }
 
 export default function Logo({ wordmark = false, size = 'md', className }: Props) {
   const scale = SCALES[size]
