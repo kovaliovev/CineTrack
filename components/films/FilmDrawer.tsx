@@ -9,6 +9,8 @@ import TrailerButton from './TrailerButton'
 import CommentsSection from '@/components/comments/CommentsSection'
 import { posterUrl, profileUrl } from '@/lib/tmdb'
 import type { FilmCardStatus, TMDBMovie, CastMember } from '@/lib/types'
+import { HScroll } from './HScroll'
+import { StatusDot } from './StatusDot'
 
 interface DrawerDetail {
   id: number
@@ -34,26 +36,6 @@ interface Props {
   onClose: () => void
   onOpenFilm?: (tmdbId: number) => void
 }
-
-function StatusDot({ filmStatus, label }: { filmStatus: FilmCardStatus['status']; label: string }) {
-  if (filmStatus === 'watched')
-    return <span className="text-[11px] leading-none text-emerald-400" title={`${label}: Watched`}>●</span>
-  if (filmStatus === 'wishlist')
-    return <span className="text-[11px] leading-none text-cinema-red" title={`${label}: Wishlisted`}>●</span>
-  return <span className="text-[11px] leading-none text-text-muted" title={`${label}: Not seen`}>○</span>
-}
-
-const HScroll = ({ children }: { children: React.ReactNode }) => (
-  <div className="relative">
-    <div className="absolute right-0 top-0 bottom-2 w-10 bg-gradient-to-l from-bg-card to-transparent z-10 pointer-events-none" />
-    <div
-      className="flex gap-2.5 overflow-x-auto pb-2 [&::-webkit-scrollbar]:hidden"
-      style={{ scrollbarWidth: 'none' }}
-    >
-      {children}
-    </div>
-  </div>
-)
 
 export default function FilmDrawer({ tmdbId, onClose, onOpenFilm }: Props) {
   const [detail, setDetail]                 = useState<DrawerDetail | null>(null)

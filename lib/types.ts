@@ -92,3 +92,19 @@ export interface FilmCardStatus {
   status: FilmStatus | null
   score: number | null
 }
+
+export interface PersonCredit {
+  id: number
+  title: string
+  poster_path: string | null
+  release_date: string
+  character: string
+}
+
+export interface PersonDetail {
+  id: number
+  name: string
+  profile_path: string | null
+  birthday: string | null
+  movie_credits: { cast: PersonCredit[] }
+}
