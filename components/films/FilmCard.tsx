@@ -47,6 +47,11 @@ export default function FilmCard({ movie, initialStatus, onOpenDetail }: Props) 
           )}
         </button>
 
+        {/* Watched dimming overlay */}
+        {status.status === 'watched' && (
+          <div className="absolute inset-0 z-[5] bg-black/45 pointer-events-none" />
+        )}
+
         {/* TMDB audience score */}
         {movie.vote_average != null && movie.vote_average > 0 && (
           <div className="absolute top-2 left-2 z-10 bg-black/70 backdrop-blur-sm text-white text-[10px] font-semibold px-1.5 py-0.5 rounded pointer-events-none">
