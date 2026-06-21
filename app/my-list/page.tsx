@@ -73,6 +73,7 @@ export default function MyListPage() {
     setSelectedGenre(null)
     setSelectedDecade(null)
     setMinScore(null)
+    setSort('date')
   }
 
   const watched  = allItems.filter(i => i.status === 'watched')
