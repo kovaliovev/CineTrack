@@ -11,6 +11,7 @@ import { posterUrl, profileUrl } from '@/lib/tmdb'
 import type { FilmCardStatus, TMDBMovie, CastMember } from '@/lib/types'
 import { HScroll } from './HScroll'
 import { StatusDot } from './StatusDot'
+import ActorPanel from './ActorPanel'
 
 interface DrawerDetail {
   id: number
@@ -52,6 +53,7 @@ export default function FilmDrawer({ tmdbId, onClose, onOpenFilm }: Props) {
   >({})
   const [similarFilms, setSimilarFilms]     = useState<TMDBMovie[]>([])
   const [similarLoading, setSimilarLoading] = useState(false)
+  const [actorId, setActorId]               = useState<number | null>(null)
   const supabase = createClient()
 
   useEffect(() => {
@@ -70,6 +72,7 @@ export default function FilmDrawer({ tmdbId, onClose, onOpenFilm }: Props) {
     setCollectionStatuses({})
     setSimilarFilms([])
     setSimilarLoading(true)
+    setActorId(null)
 
     let cancelled = false
 
@@ -188,7 +191,14 @@ export default function FilmDrawer({ tmdbId, onClose, onOpenFilm }: Props) {
           </svg>
         </button>
 
-        {!detail ? (
+        {actorId !== null ? (
+          <ActorPanel
+            personId={actorId}
+            onBack={() => setActorId(null)}
+            onOpenFilm={(id) => { setActorId(null); onOpenFilm?.(id) }}
+            userId={userId}
+          />
+        ) : !detail ? (
           /* ── Skeleton ── */
           <div className="p-4 sm:p-6 animate-pulse">
             <div className="flex gap-5 mb-6">
@@ -265,7 +275,11 @@ export default function FilmDrawer({ tmdbId, onClose, onOpenFilm }: Props) {
                     const photo = profileUrl(member.profile_path)
                     const initials = member.name.split(' ').map(n => n[0]).slice(0, 2).join('')
                     return (
-                      <div key={member.id} className="flex-none w-14 sm:w-16 text-center">
+                      <button
+                        key={member.id}
+                        onClick={() => setActorId(member.id)}
+                        className="flex-none w-14 sm:w-16 text-center hover:opacity-80 transition-opacity"
+                      >
                         <div className="relative aspect-square rounded-lg overflow-hidden bg-bg-elevated">
                           {photo
                             ? <Image src={photo} alt={member.name} fill className="object-cover object-top" sizes="64px" />
@@ -280,7 +294,7 @@ export default function FilmDrawer({ tmdbId, onClose, onOpenFilm }: Props) {
                         {member.character && (
                           <p className="text-[10px] text-text-muted truncate leading-tight">as {member.character}</p>
                         )}
-                      </div>
+                      </button>
                     )
                   })}
                 </HScroll>
