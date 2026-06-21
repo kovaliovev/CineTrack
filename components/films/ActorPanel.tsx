@@ -3,8 +3,6 @@ import { useState, useEffect } from 'react'
 import Image from 'next/image'
 import { createClient } from '@/lib/supabase/client'
 import { posterUrl, profileUrl } from '@/lib/tmdb'
-import { HScroll } from './HScroll'
-import { StatusDot } from './StatusDot'
 import type { PersonDetail, FilmCardStatus } from '@/lib/types'
 
 interface Props {
@@ -49,10 +47,10 @@ export default function ActorPanel({ personId, onBack, onOpenFilm, userId }: Pro
     return () => { cancelled = true }
   }, [personId, userId])
 
-  const photo      = person ? profileUrl(person.profile_path) : null
-  const initials   = person ? person.name.split(' ').map(n => n[0]).slice(0, 2).join('') : ''
-  const birthYear  = person?.birthday?.slice(0, 4)
-  const filmCount  = person?.movie_credits.cast.length ?? 0
+  const photo     = person ? profileUrl(person.profile_path) : null
+  const initials  = person ? person.name.split(' ').map(n => n[0]).slice(0, 2).join('') : ''
+  const birthYear = person?.birthday?.slice(0, 4)
+  const filmCount = person?.movie_credits.cast.length ?? 0
 
   return (
     <div className="p-4 sm:p-6 pb-8">
@@ -70,19 +68,22 @@ export default function ActorPanel({ personId, onBack, onOpenFilm, userId }: Pro
       {error ? (
         <p className="text-sm text-text-muted py-8 text-center">Could not load actor details.</p>
       ) : !person ? (
+        /* Skeleton */
         <div className="animate-pulse">
-          <div className="flex items-center gap-3 mb-6">
-            <div className="w-14 h-14 rounded-full bg-bg-elevated flex-shrink-0" />
-            <div className="flex-1 space-y-2">
-              <div className="h-4 bg-bg-elevated rounded w-1/2" />
+          <div className="flex items-center gap-4 mb-6">
+            <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-bg-elevated flex-shrink-0" />
+            <div className="flex-1 space-y-2.5">
+              <div className="h-5 bg-bg-elevated rounded w-1/2" />
               <div className="h-3 bg-bg-elevated rounded w-1/3" />
             </div>
           </div>
-          <div className="flex gap-2.5">
-            {Array.from({ length: 6 }).map((_, i) => (
-              <div key={i} className="flex-none w-16">
+          <div className="h-3 bg-bg-elevated rounded w-1/4 mb-3" />
+          <div className="grid grid-cols-3 gap-2 sm:gap-3">
+            {Array.from({ length: 9 }).map((_, i) => (
+              <div key={i}>
                 <div className="aspect-[2/3] rounded-lg bg-bg-elevated" />
-                <div className="h-2 bg-bg-elevated rounded mt-2 w-3/4" />
+                <div className="h-2.5 bg-bg-elevated rounded mt-2 w-3/4" />
+                <div className="h-2 bg-bg-elevated rounded mt-1.5 w-1/2" />
               </div>
             ))}
           </div>
@@ -90,54 +91,80 @@ export default function ActorPanel({ personId, onBack, onOpenFilm, userId }: Pro
       ) : (
         <>
           {/* Header */}
-          <div className="flex items-center gap-3 mb-5">
-            <div className="relative w-14 h-14 rounded-full overflow-hidden bg-bg-elevated flex-shrink-0">
+          <div className="flex items-center gap-4 mb-6">
+            <div className="relative w-16 h-16 sm:w-20 sm:h-20 rounded-full overflow-hidden bg-bg-elevated flex-shrink-0 ring-2 ring-bg-border">
               {photo
-                ? <Image src={photo} alt={person.name} fill className="object-cover object-top" sizes="56px" />
-                : <div className="w-full h-full flex items-center justify-center text-text-muted text-sm font-semibold">{initials}</div>
+                ? <Image src={photo} alt={person.name} fill className="object-cover object-top" sizes="80px" />
+                : <div className="w-full h-full flex items-center justify-center text-text-muted text-base font-semibold">{initials}</div>
               }
             </div>
             <div>
-              <h3 className="text-base font-bold text-text-primary leading-tight">{person.name}</h3>
-              <p className="text-xs text-text-muted mt-0.5">
+              <h3 className="text-lg font-bold text-text-primary leading-tight">{person.name}</h3>
+              <p className="text-xs text-text-muted mt-1 leading-relaxed">
                 {birthYear && <span>Born {birthYear}</span>}
-                {birthYear && filmCount > 0 && <span className="mx-1">·</span>}
+                {birthYear && filmCount > 0 && <span className="mx-1.5">·</span>}
                 {filmCount > 0 && <span>{filmCount} film{filmCount !== 1 ? 's' : ''}</span>}
               </p>
             </div>
           </div>
 
-          {/* Filmography */}
+          {/* Filmography grid */}
           {person.movie_credits.cast.length > 0 && (
-            <HScroll>
-              {person.movie_credits.cast.map(film => {
-                const poster      = posterUrl(film.poster_path)
-                const year        = film.release_date?.slice(0, 4)
-                const filmStatus  = statuses[film.id] ?? { status: null, score: null }
-                return (
-                  <button
-                    key={film.id}
-                    onClick={() => onOpenFilm(film.id)}
-                    className="flex-none w-16 sm:w-[72px] text-center group"
-                    title={film.title}
-                  >
-                    <div className="relative aspect-[2/3] rounded-lg overflow-hidden bg-bg-elevated border border-transparent group-hover:border-cinema-red/40 transition-colors">
-                      {poster
-                        ? <Image src={poster} alt={film.title} fill className="object-cover group-hover:scale-105 transition-transform duration-300" sizes="72px" />
-                        : <div className="w-full h-full flex items-center justify-center text-text-muted text-[9px] p-1 text-center leading-tight">{film.title}</div>
-                      }
-                    </div>
-                    <p className="text-[10px] font-medium text-text-primary truncate mt-1.5 leading-tight">{film.title}</p>
-                    <p className="text-[10px] text-text-muted truncate leading-tight">
-                      {year}{film.character ? ` · ${film.character}` : ''}
-                    </p>
-                    <div className="flex justify-center mt-1">
-                      <StatusDot filmStatus={filmStatus.status} label="You" />
-                    </div>
-                  </button>
-                )
-              })}
-            </HScroll>
+            <>
+              <p className="text-xs font-semibold text-text-muted uppercase tracking-wider mb-3">
+                Filmography
+              </p>
+              <div className="grid grid-cols-3 gap-2 sm:gap-3">
+                {person.movie_credits.cast.map(film => {
+                  const poster      = posterUrl(film.poster_path)
+                  const year        = film.release_date?.slice(0, 4)
+                  const filmStatus  = statuses[film.id] ?? { status: null, score: null }
+                  const isWatched   = filmStatus.status === 'watched'
+                  return (
+                    <button
+                      key={film.id}
+                      onClick={() => onOpenFilm(film.id)}
+                      className="group text-left cursor-pointer"
+                      title={film.title}
+                    >
+                      <div className="relative aspect-[2/3] rounded-lg overflow-hidden bg-bg-elevated border border-transparent group-hover:border-cinema-red/40 transition-colors duration-200">
+                        {/* Poster — grayscale when watched */}
+                        <div className={`absolute inset-0 transition-all${isWatched ? ' grayscale brightness-75' : ''}`}>
+                          {poster
+                            ? <Image
+                                src={poster}
+                                alt={film.title}
+                                fill
+                                className="object-cover group-hover:scale-105 transition-transform duration-300"
+                                sizes="(max-width: 640px) 30vw, 150px"
+                              />
+                            : <div className="w-full h-full flex items-center justify-center text-text-muted text-[9px] p-1 text-center leading-tight">{film.title}</div>
+                          }
+                        </div>
+                        {/* Year badge */}
+                        {year && (
+                          <div className="absolute bottom-1.5 left-1.5 z-10 text-[9px] font-semibold bg-black/65 text-white/80 px-1.5 py-0.5 rounded leading-none">
+                            {year}
+                          </div>
+                        )}
+                        {/* Score circle for watched films */}
+                        {isWatched && filmStatus.score !== null && (
+                          <div className="absolute inset-0 z-20 flex items-center justify-center pointer-events-none">
+                            <div className="w-9 h-9 rounded-full bg-black/65 ring-2 ring-white/30 flex items-center justify-center text-white text-sm font-bold shadow-lg">
+                              {filmStatus.score}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                      <p className="text-[10px] sm:text-[11px] font-medium text-text-primary truncate mt-1.5 leading-tight">{film.title}</p>
+                      {film.character && (
+                        <p className="text-[9px] sm:text-[10px] text-text-muted truncate leading-tight">{film.character}</p>
+                      )}
+                    </button>
+                  )
+                })}
+              </div>
+            </>
           )}
         </>
       )}
