@@ -108,14 +108,17 @@ export default function ActorPanel({ personId, onBack, onOpenFilm, userId }: Pro
             </div>
           </div>
 
-          {/* Filmography grid */}
-          {person.movie_credits.cast.length > 0 && (
+          {/* Filmography grid — directed takes priority; fall back to cast */}
+          {(person.movie_credits.directed.length > 0 || person.movie_credits.cast.length > 0) && (() => {
+            const isDirector = person.movie_credits.directed.length > 0
+            const films = isDirector ? person.movie_credits.directed : person.movie_credits.cast
+            return (
             <>
               <p className="text-xs font-semibold text-text-muted uppercase tracking-wider mb-3">
-                Filmography
+                {isDirector ? 'Directed' : 'Filmography'}
               </p>
               <div className="grid grid-cols-3 gap-2 sm:gap-3">
-                {person.movie_credits.cast.map(film => {
+                {films.map(film => {
                   const poster      = posterUrl(film.poster_path)
                   const year        = film.release_date?.slice(0, 4)
                   const filmStatus  = statuses[film.id] ?? { status: null, score: null }
@@ -165,7 +168,8 @@ export default function ActorPanel({ personId, onBack, onOpenFilm, userId }: Pro
                 })}
               </div>
             </>
-          )}
+            )
+          })()}
         </>
       )}
     </div>

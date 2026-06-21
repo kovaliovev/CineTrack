@@ -76,7 +76,7 @@ export interface TMDBMovieDetail {
   genres: { id: number; name: string }[]
   belongs_to_collection: { id: number; name: string; poster_path: string | null } | null
   credits: {
-    crew: { job: string; name: string }[]
+    crew: { id: number; job: string; name: string }[]
     cast: CastMember[]
   }
   videos: { results: { type: string; site: string; key: string; official: boolean }[] }
@@ -106,5 +106,5 @@ export interface PersonDetail {
   name: string
   profile_path: string | null
   birthday: string | null
-  movie_credits: { cast: PersonCredit[] }
+  movie_credits: { cast: PersonCredit[]; directed: PersonCredit[] }
 }

@@ -32,6 +32,10 @@ export function directorName(detail: TMDBMovieDetail): string | null {
   return detail.credits.crew.find(c => c.job === 'Director')?.name ?? null
 }
 
+export function directorId(detail: TMDBMovieDetail): number | null {
+  return detail.credits.crew.find(c => c.job === 'Director')?.id ?? null
+}
+
 export async function fetchTrending(): Promise<TMDBMovie[]> {
   const data = await get<{ results: TMDBMovie[] }>('/trending/movie/week')
   return data.results
@@ -164,6 +168,13 @@ interface TMDBPersonRaw {
       poster_path: string | null
       release_date: string
       character: string
+    }>
+    crew: Array<{
+      id: number
+      title: string
+      poster_path: string | null
+      release_date: string
+      job: string
     }>
   }
 }

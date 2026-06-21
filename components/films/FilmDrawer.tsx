@@ -21,6 +21,7 @@ interface DrawerDetail {
   runtime: number | null
   genres: string[]
   director: string | null
+  director_id: number | null
   overview: string
   trailer_key: string | null
   belongs_to_collection: { id: number; name: string } | null
@@ -256,7 +257,16 @@ export default function FilmDrawer({ tmdbId, onClose, onOpenFilm }: Props) {
                   </div>
                 )}
                 {detail.director && (
-                  <p className="text-xs text-text-muted mt-2">Dir. {detail.director}</p>
+                  detail.director_id ? (
+                    <button
+                      onClick={() => setActorId(detail.director_id!)}
+                      className="text-xs text-text-muted mt-2 hover:text-white transition-colors cursor-pointer block"
+                    >
+                      Dir. {detail.director}
+                    </button>
+                  ) : (
+                    <p className="text-xs text-text-muted mt-2">Dir. {detail.director}</p>
+                  )
                 )}
               </div>
             </div>

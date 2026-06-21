@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { fetchFilmDetail, posterUrl, trailerKey, directorName } from '@/lib/tmdb'
+import { fetchFilmDetail, posterUrl, trailerKey, directorName, directorId } from '@/lib/tmdb'
 import { createClient } from '@/lib/supabase/server'
 import type { TMDBMovieDetail } from '@/lib/types'
 
@@ -35,6 +35,7 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ id:
     year: detail.release_date ? Number(detail.release_date.slice(0, 4)) : null,
     genres: detail.genres.map((g: { name: string }) => g.name),
     director: directorName(detail),
+    director_id: directorId(detail),
     trailer_key: trailerKey(detail),
   })
 }
