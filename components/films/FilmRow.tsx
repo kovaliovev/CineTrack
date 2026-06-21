@@ -58,7 +58,7 @@ export default function FilmRow({ title, movies, statuses, onOpenDetail, seeAllH
       <div className="relative">
         <div
           ref={scrollRef}
-          className="flex gap-3 overflow-x-auto pb-1"
+          className="flex gap-3 overflow-x-auto py-3"
           style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
         >
           {movies.map(movie => (
