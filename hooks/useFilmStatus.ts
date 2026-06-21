@@ -11,6 +11,12 @@ export function useFilmStatus(
   const [status, setStatus] = useState<FilmCardStatus>(initialStatus)
   const [loading, setLoading] = useState(false)
 
+  // Reset immediately when the film changes so stale state from the previous
+  // film doesn't show while initialStatus is still catching up asynchronously.
+  useEffect(() => {
+    setStatus({ status: null, score: null })
+  }, [tmdbId])
+
   useEffect(() => {
     setStatus(initialStatus)
   }, [initialStatus.status, initialStatus.score])
