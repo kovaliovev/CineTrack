@@ -151,3 +151,23 @@ export async function fetchByDecade(decade: number): Promise<TMDBMovie[]> {
   })
   return data.results
 }
+
+interface TMDBPersonRaw {
+  id: number
+  name: string
+  profile_path: string | null
+  birthday: string | null
+  movie_credits?: {
+    cast: Array<{
+      id: number
+      title: string
+      poster_path: string | null
+      release_date: string
+      character: string
+    }>
+  }
+}
+
+export async function fetchPersonDetail(id: number): Promise<TMDBPersonRaw> {
+  return get<TMDBPersonRaw>(`/person/${id}`, { append_to_response: 'movie_credits' })
+}
