@@ -17,10 +17,12 @@ interface Props {
 export default function ActorPanel({ personId, onBack, onOpenFilm, userId }: Props) {
   const [person, setPerson] = useState<PersonDetail | null>(null)
   const [statuses, setStatuses] = useState<Record<number, FilmCardStatus>>({})
+  const [error, setError] = useState(false)
 
   useEffect(() => {
     setPerson(null)
     setStatuses({})
+    setError(false)
     let cancelled = false
 
     fetch(`/api/tmdb/person/${personId}`)
@@ -42,6 +44,7 @@ export default function ActorPanel({ personId, onBack, onOpenFilm, userId }: Pro
             setStatuses(map)
           })
       })
+      .catch(() => { if (!cancelled) setError(true) })
 
     return () => { cancelled = true }
   }, [personId, userId])
@@ -64,7 +67,9 @@ export default function ActorPanel({ personId, onBack, onOpenFilm, userId }: Pro
         Back
       </button>
 
-      {!person ? (
+      {error ? (
+        <p className="text-sm text-text-muted py-8 text-center">Could not load actor details.</p>
+      ) : !person ? (
         <div className="animate-pulse">
           <div className="flex items-center gap-3 mb-6">
             <div className="w-14 h-14 rounded-full bg-bg-elevated flex-shrink-0" />

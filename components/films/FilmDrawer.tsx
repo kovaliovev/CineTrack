@@ -278,7 +278,7 @@ export default function FilmDrawer({ tmdbId, onClose, onOpenFilm }: Props) {
                       <button
                         key={member.id}
                         onClick={() => setActorId(member.id)}
-                        className="flex-none w-14 sm:w-16 text-center hover:opacity-80 transition-opacity"
+                        className="flex-none w-14 sm:w-16 text-center hover:opacity-80 transition-opacity cursor-pointer"
                       >
                         <div className="relative aspect-square rounded-lg overflow-hidden bg-bg-elevated">
                           {photo

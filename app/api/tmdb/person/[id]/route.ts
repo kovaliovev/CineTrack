@@ -6,6 +6,9 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ id:
   const { id } = await params
   try {
     const data = await fetchPersonDetail(Number(id))
+    if (!data.id || !data.name) {
+      return NextResponse.json({ error: 'Not found' }, { status: 404 })
+    }
     const cast = (data.movie_credits?.cast ?? [])
       .filter(c => c.release_date)
       .sort((a, b) => b.release_date.localeCompare(a.release_date))
