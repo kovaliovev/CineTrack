@@ -36,50 +36,57 @@ export default function FilmCard({ movie, initialStatus, onOpenDetail }: Props) 
     <div className="relative group bg-bg-card rounded-xl overflow-visible border border-transparent hover:border-cinema-red transition-all">
       {/* Poster area */}
       <div className="relative w-full aspect-[2/3] rounded-t-xl overflow-hidden">
-        <button
-          className="absolute inset-0 bg-bg-elevated"
-          onClick={() => onOpenDetail?.(movie.id)}
-        >
-          {poster ? (
-            <Image src={poster} alt={movie.title} fill className="object-cover" sizes="200px" />
-          ) : (
-            <div className="w-full h-full flex items-center justify-center text-text-muted text-xs">No poster</div>
+
+        {/* Grayscale layer: poster + TMDB score go under this filter when watched */}
+        <div className={`absolute inset-0 transition-all${status.status === 'watched' ? ' grayscale brightness-75' : ''}`}>
+          <button
+            className="absolute inset-0 bg-bg-elevated"
+            onClick={() => onOpenDetail?.(movie.id)}
+          >
+            {poster ? (
+              <Image src={poster} alt={movie.title} fill className="object-cover" sizes="200px" />
+            ) : (
+              <div className="w-full h-full flex items-center justify-center text-text-muted text-xs">No poster</div>
+            )}
+          </button>
+
+          {/* TMDB audience score — inside grayscale wrapper */}
+          {movie.vote_average != null && movie.vote_average > 0 && (
+            <div className="absolute top-2 left-2 z-10 bg-black/70 backdrop-blur-sm text-white text-[10px] font-semibold px-1.5 py-0.5 rounded pointer-events-none">
+              ★ {movie.vote_average.toFixed(1)}
+            </div>
           )}
-        </button>
+        </div>
 
-        {/* Watched dimming overlay */}
-        {status.status === 'watched' && (
-          <div className="absolute inset-0 z-[5] bg-black/45 pointer-events-none" />
-        )}
-
-        {/* TMDB audience score */}
-        {movie.vote_average != null && movie.vote_average > 0 && (
-          <div className="absolute top-2 left-2 z-10 bg-black/70 backdrop-blur-sm text-white text-[10px] font-semibold px-1.5 py-0.5 rounded pointer-events-none">
-            ★ {movie.vote_average.toFixed(1)}
+        {/* Centered user score — above grayscale, in full color */}
+        {status.status === 'watched' && status.score !== null && (
+          <div className="absolute inset-0 z-20 flex items-center justify-center pointer-events-none">
+            <div className="w-12 h-12 rounded-full bg-black/65 ring-2 ring-white/30 flex items-center justify-center text-white text-xl font-bold shadow-lg">
+              {status.score}
+            </div>
           </div>
         )}
 
-        {/* Status badge — sibling of poster button, so no nested-button issue */}
+        {/* Status badges — above grayscale wrapper, always in color */}
         {status.status === 'wishlist' && (
           <button
             onClick={removeFromList}
             title="Remove from wishlist"
             disabled={loading}
-            className="absolute top-2 right-2 z-10 bg-cinema-red text-white text-xs w-6 h-6 rounded flex items-center justify-center font-bold hover:bg-red-700 transition-colors group/badge"
+            className="absolute top-2 right-2 z-30 bg-cinema-red text-white text-xs w-6 h-6 rounded flex items-center justify-center font-bold hover:bg-red-700 transition-colors group/badge"
           >
             <span className="group-hover/badge:hidden leading-none">♥</span>
             <span className="hidden group-hover/badge:flex items-center justify-center leading-none">×</span>
           </button>
         )}
-        {status.status === 'watched' && status.score !== null && (
+        {status.status === 'watched' && (
           <button
             onClick={removeFromList}
             title="Remove from watched"
             disabled={loading}
-            className="absolute top-2 right-2 z-10 bg-black/70 text-white text-xs px-1.5 py-0.5 rounded font-semibold hover:bg-red-900/80 transition-colors group/badge"
+            className="absolute top-2 right-2 z-30 bg-black/60 text-white/60 text-xs w-6 h-6 rounded flex items-center justify-center hover:bg-red-900/80 hover:text-white transition-colors"
           >
-            <span className="group-hover/badge:hidden">{status.score}</span>
-            <span className="hidden group-hover/badge:block">×</span>
+            ×
           </button>
         )}
       </div>
