@@ -142,6 +142,15 @@ export async function fetchCollection(id: number): Promise<TMDBCollection> {
   return get<TMDBCollection>(`/collection/${id}`)
 }
 
+export async function fetchSuggestionsForGenre(genreId: number): Promise<TMDBMovie[]> {
+  const data = await get<{ results: TMDBMovie[] }>('/discover/movie', {
+    with_genres: String(genreId),
+    sort_by: 'vote_average.desc',
+    'vote_count.gte': '100',
+  })
+  return data.results
+}
+
 export async function fetchRecommendations(id: number): Promise<TMDBMovie[]> {
   const data = await get<{ results: TMDBMovie[] }>(`/movie/${id}/recommendations`)
   return data.results.slice(0, 12)
