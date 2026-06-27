@@ -74,9 +74,8 @@ export async function GET(req: NextRequest) {
 
   if (mutualFavorites.length < 1) return NextResponse.json([])
 
-  // Take top 5 seeds by combined score
+  // Use all mutual favorites, sorted by combined score
   mutualFavorites.sort((a, b) => b.combinedScore - a.combinedScore)
-  const seeds = mutualFavorites.slice(0, 5)
 
   // Fetch all tmdb_ids for both users (watched + wishlist) to exclude
   const [{ data: myAll }, { data: partnerAll }] = await Promise.all([
@@ -91,7 +90,7 @@ export async function GET(req: NextRequest) {
 
   // Fetch TMDB recommendations for all seeds in parallel
   const settled = await Promise.allSettled(
-    seeds.map(seed =>
+    mutualFavorites.map(seed =>
       fetchRecommendations(seed.tmdb_id).then(results => ({ seed, results }))
     )
   )
@@ -103,11 +102,11 @@ export async function GET(req: NextRequest) {
   }[] = []
 
   for (const result of settled) {
-    if (suggestions.length >= 8) break
     if (result.status !== 'fulfilled') continue
     const { seed, results } = result.value
+    let countForSeed = 0
     for (const movie of results) {
-      if (suggestions.length >= 8) break
+      if (countForSeed >= 4) break
       if (excludeIds.has(movie.id) || seen.has(movie.id)) continue
       seen.add(movie.id)
       const year = movie.release_date ? parseInt(movie.release_date.slice(0, 4)) : null
@@ -115,6 +114,7 @@ export async function GET(req: NextRequest) {
         film: { tmdb_id: movie.id, title: movie.title, poster_url: posterUrl(movie.poster_path), year },
         reason: `Because you both loved ${seed.title}`,
       })
+      countForSeed++
     }
   }
 
