@@ -91,12 +91,22 @@ export async function GET(req: NextRequest) {
     reason: string
   }[] = []
 
-  for (const { genre } of topGenres) {
-    if (suggestions.length >= 8) break
-    const genreId = GENRE_IDS[genre]
-    if (!genreId) continue
+  let genreResults: { genre: string; results: Awaited<ReturnType<typeof fetchSuggestionsForGenre>> }[]
+  try {
+    genreResults = await Promise.all(
+      topGenres.map(async ({ genre }) => {
+        const genreId = GENRE_IDS[genre]
+        if (!genreId) return { genre, results: [] as Awaited<ReturnType<typeof fetchSuggestionsForGenre>> }
+        const results = await fetchSuggestionsForGenre(genreId)
+        return { genre, results }
+      })
+    )
+  } catch {
+    return NextResponse.json({ error: 'Failed to fetch suggestions' }, { status: 502 })
+  }
 
-    const results = await fetchSuggestionsForGenre(genreId)
+  for (const { genre, results } of genreResults) {
+    if (suggestions.length >= 8) break
     for (const movie of results) {
       if (suggestions.length >= 8) break
       if (excludeIds.has(movie.id) || seen.has(movie.id)) continue
