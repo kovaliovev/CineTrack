@@ -1,11 +1,12 @@
-// components/couple/WishlistMatch.tsx
+// components/couple/WatchTonight.tsx
 'use client'
 import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import FilmDrawer from '@/components/films/FilmDrawer'
 import SuggestionsSection from '@/components/couple/SuggestionsSection'
+import SimilarSection from '@/components/couple/SimilarSection'
 
-export default function WishlistMatch({ partnerId }: { partnerId: string }) {
+export default function WatchTonight({ partnerId }: { partnerId: string }) {
   const [matches, setMatches] = useState<any[]>([])
   const [openFilmId, setOpenFilmId] = useState<number | null>(null)
   const supabase = createClient()
@@ -33,6 +34,9 @@ export default function WishlistMatch({ partnerId }: { partnerId: string }) {
 
   return (
     <>
+      <p className="text-xs font-semibold text-text-muted uppercase tracking-wider mb-3">
+        On Both Your Lists
+      </p>
       {matches.length === 0 ? (
         <p className="text-text-muted text-sm mb-8">
           No wishlist matches yet. Add the same film to both wishlists to see it here.
@@ -57,10 +61,19 @@ export default function WishlistMatch({ partnerId }: { partnerId: string }) {
         </div>
       )}
 
-      <p className="text-xs font-semibold text-text-muted uppercase tracking-wider mb-3">
-        Suggested for You Two
-      </p>
-      <SuggestionsSection partnerId={partnerId} />
+      <div className="mt-8">
+        <p className="text-xs font-semibold text-text-muted uppercase tracking-wider mb-3">
+          Tailored for You Two
+        </p>
+        <SuggestionsSection partnerId={partnerId} />
+      </div>
+
+      <div className="mt-8">
+        <p className="text-xs font-semibold text-text-muted uppercase tracking-wider mb-3">
+          In the Same Vein
+        </p>
+        <SimilarSection partnerId={partnerId} />
+      </div>
 
       {openFilmId && (
         <FilmDrawer tmdbId={openFilmId} onClose={() => setOpenFilmId(null)} onOpenFilm={setOpenFilmId} />

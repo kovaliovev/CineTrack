@@ -2,7 +2,7 @@
 'use client'
 import { useState } from 'react'
 import AppShell from '@/components/layout/AppShell'
-import WishlistMatch from '@/components/couple/WishlistMatch'
+import WatchTonight from '@/components/couple/WatchTonight'
 import StatsView from '@/components/couple/StatsView'
 import { useCouple } from '@/hooks/useCouple'
 
@@ -42,7 +42,7 @@ export default function CouplePage() {
           </button>
         </div>
 
-        {tab === 'match' ? <WishlistMatch partnerId={partnerId} /> : <StatsView partnerId={partnerId} />}
+        {tab === 'match' ? <WatchTonight partnerId={partnerId} /> : <StatsView partnerId={partnerId} />}
       </div>
     </AppShell>
   )
