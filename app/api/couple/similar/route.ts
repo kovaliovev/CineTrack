@@ -72,7 +72,7 @@ export async function GET(req: NextRequest) {
     }
   })
 
-  if (mutualFavorites.length < 2) return NextResponse.json([])
+  if (mutualFavorites.length < 1) return NextResponse.json([])
 
   // Take top 5 seeds by combined score
   mutualFavorites.sort((a, b) => b.combinedScore - a.combinedScore)
