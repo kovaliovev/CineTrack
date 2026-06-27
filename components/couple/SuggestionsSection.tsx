@@ -10,6 +10,7 @@ interface Suggestion {
 export default function SuggestionsSection({ partnerId }: { partnerId: string }) {
   const [suggestions, setSuggestions] = useState<Suggestion[]>([])
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(false)
   const [openFilmId, setOpenFilmId] = useState<number | null>(null)
 
   useEffect(() => {
@@ -22,11 +23,15 @@ export default function SuggestionsSection({ partnerId }: { partnerId: string })
           setLoading(false)
         }
       })
-      .catch(() => { if (!cancelled) setLoading(false) })
+      .catch(() => { if (!cancelled) { setError(true); setLoading(false) } })
     return () => { cancelled = true }
   }, [partnerId])
 
   if (loading) return <p className="text-text-muted text-sm">Finding suggestions…</p>
+
+  if (error) {
+    return <p className="text-text-muted text-sm">Couldn&apos;t load suggestions right now.</p>
+  }
 
   if (suggestions.length === 0) {
     return (

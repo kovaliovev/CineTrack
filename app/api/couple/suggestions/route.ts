@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 import { fetchSuggestionsForGenre, posterUrl } from '@/lib/tmdb'
 
 const GENRE_IDS: Record<string, number> = {
@@ -37,6 +38,29 @@ export async function GET(req: NextRequest) {
 
   const partnerId = req.nextUrl.searchParams.get('partnerId')
   if (!partnerId) return NextResponse.json({ error: 'partnerId required' }, { status: 400 })
+
+  // Verify caller is in a couple with the given partnerId
+  const admin = createAdminClient()
+  const { data: profile } = await admin
+    .from('profiles')
+    .select('couple_id')
+    .eq('id', user.id)
+    .single()
+
+  if (!profile?.couple_id) {
+    return NextResponse.json({ error: 'Not in a couple' }, { status: 403 })
+  }
+
+  const { data: couple } = await admin
+    .from('couples')
+    .select('user1_id, user2_id')
+    .eq('id', profile.couple_id)
+    .single()
+
+  const isValidPartner = couple?.user1_id === partnerId || couple?.user2_id === partnerId
+  if (!isValidPartner) {
+    return NextResponse.json({ error: 'Invalid partner' }, { status: 403 })
+  }
 
   // Fetch both users' watched films with score + genres
   const [{ data: myRaw }, { data: partnerRaw }] = await Promise.all([
